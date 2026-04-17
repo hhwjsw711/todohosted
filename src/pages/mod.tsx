@@ -143,31 +143,10 @@ const AdminDashboard = () => {
               />
             </a>
             <a href="/" className="text-sm md:text-xl">
-              同步AI演示
+              AI聊天与待办同步应用
             </a>
           </h1>
           <div className="flex items-center gap-6">
-            <a
-              href="https://convex.dev"
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`${mutedTextClasses} hover:opacity-80 transition-opacity`}>
-              Convex
-            </a>
-            <a
-              href="https://docs.convex.dev"
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`${mutedTextClasses} hover:opacity-80 transition-opacity`}>
-              Docs
-            </a>
-            <a
-              href="https://stack.convex.dev/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`${mutedTextClasses} hover:opacity-80 transition-opacity`}>
-              Blog
-            </a>
             <button
               onClick={() => setIsDark(!isDark)}
               className={`${mutedTextClasses} hover:opacity-80 transition-opacity`}>
