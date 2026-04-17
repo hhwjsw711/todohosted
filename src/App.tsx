@@ -84,7 +84,7 @@ const MessageItem = ({
             <div className="flex flex-col">
               <div
                 className={`${isSelected ? "text-zinc-200" : isDark ? "text-zinc-400" : "text-white"} text-xs mb-0.5`}>
-                {message.sender || "Anonymous"}
+                {message.sender || "匿名用户"}
               </div>
               <div
                 className={`${isSelected ? "text-white" : isDark ? textClasses : "text-white"} text-sm`}>
@@ -128,7 +128,7 @@ const MessageItem = ({
                               <button
                                 onClick={() => copyCode(code)}
                                 className="hover:text-white transition-colors">
-                                {copied ? "Copied!" : <Copy className="w-4 h-4" />}
+                                {copied ? "已复制!" : <Copy className="w-4 h-4" />}
                               </button>
                             </div>
                             <SyntaxHighlighter
@@ -158,7 +158,7 @@ const MessageItem = ({
                             <button
                               onClick={() => copyCode(code)}
                               className="hover:text-white transition-colors">
-                              {copied ? "Copied!" : <Copy className="w-4 h-4" />}
+                              {copied ? "已复制!" : <Copy className="w-4 h-4" />}
                             </button>
                           </div>
                           <SyntaxHighlighter
@@ -224,7 +224,7 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
 
   // State hooks
   const [isDark, setIsDark] = useState(false);
-  const [showFloatingBox, setShowFloatingBox] = useState(true);
+  const [showFloatingBox, setShowFloatingBox] = useState(false);
   const [showFeaturesModal, setShowFeaturesModal] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [showWarning, setShowWarning] = useState(false);
@@ -242,7 +242,7 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedMessageIds, setSelectedMessageIds] = useState<Id<"pageMessages">[]>([]);
   const [hasUserInteracted, setHasUserInteracted] = useState(false);
-  const [username, setUsername] = useState("setusername");
+  const [username, setUsername] = useState("设置用户名");
   const [isEditingUsername, setIsEditingUsername] = useState(false);
   const [tempUsername, setTempUsername] = useState("");
   const [isCreatingNote, setIsCreatingNote] = useState(false);
@@ -331,7 +331,7 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
     if (!newMessage.trim() || !pageId) return;
 
     if (newMessage.trim().startsWith("@ai")) {
-      const prompt = newMessage.slice(3).trim() || "Hello! How can I help you today?";
+      const prompt = newMessage.slice(3).trim() || "你好！有什么可以帮助你的吗？";
       await sendMessage({ text: newMessage.trim(), sender: username, pageId });
       const messageId = await askAIAction({ prompt, pageId });
       setStreamedMessageId(messageId);
@@ -343,8 +343,8 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
         await sendMessage({ text: newMessage.trim(), sender: username, pageId });
         await addTodo({ text: reminderText, pageId });
         await sendMessage({
-          text: `✅ I've added "${reminderText}" to your todo list!`,
-          sender: "System",
+          text: `✅ 已将 "${reminderText}" 添加到您的待办事项!`,
+          sender: "系统",
           pageId,
         });
       }
@@ -354,12 +354,12 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
         await sendMessage({ text: newMessage.trim(), sender: username, pageId });
         await createNote({
           pageId,
-          title: `Note from ${username}`,
+          title: `${username} 的笔记`,
           content: noteText,
         });
         await sendMessage({
-          text: `📝 I've created a new note with your message!`,
-          sender: "System",
+          text: `📝 已使用您的消息创建新笔记!`,
+          sender: "系统",
           pageId,
         });
       }
@@ -375,7 +375,7 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
     const randomEmoji = HAPPY_EMOJIS[Math.floor(Math.random() * HAPPY_EMOJIS.length)];
     sendMessage({
       text: randomEmoji,
-      sender: "User",
+      sender: "用户",
       pageId,
     });
   };
@@ -430,13 +430,13 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
         setNewPageTitle("");
         await sendPageMessage({
           pageId,
-          text: `Welcome to ${newPageTitle.trim()}!`,
-          sender: "System",
+          text: `欢迎来到 ${newPageTitle.trim()}!`,
+          sender: "系统",
         });
         await sendPageMessage({
           pageId,
-          text: 'Start typing to chat, use "@ai" to ask OpenAI, type "remind me" to set a reminder, or type "note:" to create a new note.',
-          sender: "System",
+          text: '开始聊天，输入 @ai 询问AI，输入 remind me 设置提醒，或输入 note: 创建笔记。',
+          sender: "系统",
         });
         window.location.href = `/${newPageSlug.trim()}`;
       }
@@ -538,7 +538,7 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
       </div>
 
       {/* Header */}
-      <header className="w-full py-6 px-4 bg-white dark:bg-black relative">
+      <header className={`w-full py-6 px-4 ${isDark ? "bg-black" : "bg-white"} relative`}>
         <div className="max-w-7xl mx-auto flex justify-between items-center font-['Inter']">
           {/* Mobile Menu Button */}
           <button
@@ -561,7 +561,7 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
                 className="h-4"
               />
             </a>
-            Sync Engine Demo
+            AI聊天与待办同步应用
           </h1>
 
           {/* Desktop Navigation with Search */}
@@ -582,7 +582,7 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
                         .catch(() => setSelectedMessageIds([]));
                     } else setSelectedMessageIds([]);
                   }}
-                  placeholder="Search messages..."
+                  placeholder="搜索消息..."
                   className={`bg-transparent w-40 outline-none ${textClasses} placeholder-zinc-500 text-sm`}
                 />
                 {searchQuery && (
@@ -623,31 +623,10 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
             </div>
 
             {/* Existing Navigation Items */}
-            <a
-              href="https://convex.link/chatsynclinks"
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`${iconClasses} hover:opacity-80 transition-opacity`}>
-              Convex
-            </a>
-            <a
-              href="https://docs.convex.dev"
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`${iconClasses} hover:opacity-80 transition-opacity`}>
-              Docs
-            </a>
-            <a
-              href="https://stack.convex.dev/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`${iconClasses} hover:opacity-80 transition-opacity`}>
-              Blog
-            </a>
             <button
               onClick={() => setShowFeaturesModal(true)}
               className={`${iconClasses} hover:opacity-80 transition-opacity`}>
-              About
+              关于
             </button>
             {user && user.publicMetadata?.role !== "admin" && <UserButton />}
           </div>
@@ -681,7 +660,7 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
                         .catch(() => setSelectedMessageIds([]));
                     } else setSelectedMessageIds([]);
                   }}
-                  placeholder="Search messages..."
+                  placeholder="搜索消息..."
                   className={`bg-transparent w-full outline-none ${textClasses} placeholder-zinc-500 text-sm`}
                 />
                 {searchQuery && (
@@ -724,37 +703,13 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
               )}
 
               {/* Navigation Links */}
-              <a
-                href="https://convex.link/chatsynclinks"
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => setShowMobileMenu(false)}
-                className={`${iconClasses} hover:opacity-80 transition-opacity`}>
-                Convex
-              </a>
-              <a
-                href="https://docs.convex.dev"
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => setShowMobileMenu(false)}
-                className={`${iconClasses} hover:opacity-80 transition-opacity`}>
-                Docs
-              </a>
-              <a
-                href="https://stack.convex.dev/"
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => setShowMobileMenu(false)}
-                className={`${iconClasses} hover:opacity-80 transition-opacity`}>
-                Blog
-              </a>
               <button
                 onClick={() => {
                   setShowFeaturesModal(true);
                   setShowMobileMenu(false);
                 }}
                 className={`${iconClasses} hover:opacity-80 transition-opacity text-left`}>
-                About
+                关于
               </button>
             </div>
           </div>
@@ -772,15 +727,15 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
             <div className="w-full md:flex-[2]">
               <h2
                 className={`text-xl font-normal mb-3 tracking-tighter ${iconClasses} flex items-center gap-2`}>
-                Chat
-                <span className="text-sm">(Public)</span>
+                聊天
+                <span className="text-sm">(公开)</span>
                 <button
                   onClick={() => {
                     setIsMuted(!isMuted);
                     if (!isMuted) audioRef.current?.pause();
                   }}
                   className={`${iconClasses} hover:opacity-80 transition-opacity ml-2`}
-                  aria-label={isMuted ? "Unmute chat sounds" : "Mute chat sounds"}>
+                  aria-label={isMuted ? "开启聊天音效" : "静音聊天音效"}>
                   {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
                 </button>
               </h2>
@@ -810,7 +765,7 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
                               }
                             }
                           }}
-                          placeholder="Enter username..."
+                          placeholder="输入用户名..."
                           className="bg-white text-black outline-none placeholder-zinc-500 text-sm rounded px-2 py-1 border border-zinc-200"
                         />
                         <button
@@ -822,13 +777,13 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
                             setIsEditingUsername(false);
                           }}
                           className="text-sm bg-black text-white px-2 py-1 rounded hover:bg-zinc-800">
-                          Save
+                          保存
                         </button>
                         <button
                           type="button"
                           onClick={() => setIsEditingUsername(false)}
                           className="text-sm bg-white text-black px-2 py-1 rounded border border-zinc-200 hover:bg-zinc-50">
-                          Cancel
+                          取消
                         </button>
                       </div>
                     ) : (
@@ -838,7 +793,7 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
                           setTempUsername(username);
                           setIsEditingUsername(true);
                         }}
-                        title="Click to set name"
+                        title="点击设置名称"
                         className={`text-sm ${isDark ? "text-zinc-400" : "text-zinc-600"} hover:text-blue-500 transition-colors`}>
                         {username}
                       </button>
@@ -854,7 +809,7 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
                           setShowWarning(true);
                         }
                       }}
-                      placeholder="Chat or @ai or remind me or note:..."
+                      placeholder="发送消息 或 @ai 或 remind me 或 note:..."
                       className={`bg-transparent flex-1 outline-none ${textClasses} placeholder-zinc-500`}
                     />
                     <button
@@ -867,7 +822,7 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
                       type="button"
                       onClick={() => setNewMessage("@ai")}
                       className={`${isDark ? "text-zinc-400" : "text-zinc-500"} hover:text-blue-500 transition-colors`}>
-                      Ask AI
+                      问AI
                     </button>
                     <button
                       type="submit"
@@ -885,8 +840,8 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
               <div className="w-full">
                 <h2
                   className={`text-xl font-normal mb-3 tracking-tighter ${iconClasses} flex items-center gap-2`}>
-                  ToDo List
-                  <span className="text-sm">(Public)</span>
+                  待办事项
+                  <span className="text-sm">(公开)</span>
                 </h2>
                 <div className={`${cardClasses} rounded-lg p-4 shadow border border-zinc-300`}>
                   <form onSubmit={handleSubmitTodo} className="mb-6">
@@ -898,7 +853,7 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
                         name="todo"
                         value={newTodo}
                         onChange={(e) => setNewTodo(e.target.value)}
-                        placeholder="Add a task..."
+                        placeholder="添加任务..."
                         className={`bg-transparent flex-1 outline-none ${isDark ? "text-zinc-100" : "text-zinc-900"} placeholder-zinc-500 focus:ring-0`}
                       />
                     </div>
@@ -911,7 +866,7 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
               {/* Notes Section */}
               <div className="w-full">
                 <h2 className={`text-xl font-normal mb-3 tracking-tighter ${iconClasses}`}>
-                  Notes <span className="text-sm">(Public)</span>
+                  笔记 <span className="text-sm">(公开)</span>
                 </h2>
                 <div className={`${cardClasses} rounded-lg p-4 shadow border border-zinc-300`}>
                   {!isCreatingNote && (
@@ -919,7 +874,7 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
                       onClick={() => setIsCreatingNote(true)}
                       className={`flex items-center gap-2 ${isDark ? "text-zinc-400" : "text-zinc-600"} hover:text-blue-500 transition-colors mb-4`}>
                       <PlusCircle className="w-4 h-4" />
-                      <span>New Note</span>
+                      <span>新建笔记</span>
                     </button>
                   )}
 
@@ -936,7 +891,7 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
                             setShowWarning(true);
                           }
                         }}
-                        placeholder="Note title..."
+                        placeholder="笔记标题..."
                         className={`w-full mb-2 bg-transparent outline-none ${isDark ? "text-zinc-100" : "text-zinc-900"} placeholder-zinc-500 text-lg font-medium`}
                       />
                       <textarea
@@ -949,7 +904,7 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
                             setShowWarning(true);
                           }
                         }}
-                        placeholder="Start typing..."
+                        placeholder="开始输入..."
                         rows={4}
                         className={`w-full bg-transparent outline-none ${isDark ? "text-zinc-100" : "text-zinc-900"} placeholder-zinc-500 resize-none`}
                       />
@@ -962,14 +917,14 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
                             setNoteContent("");
                           }}
                           className="px-3 py-1 text-sm bg-white text-black rounded border border-zinc-200 hover:bg-zinc-50">
-                          Cancel
+                          取消
                         </button>
                         <button
                           onClick={() =>
                             editingNoteId ? handleUpdateNote(editingNoteId) : handleCreateNote()
                           }
                           className="px-3 py-1 text-sm bg-black text-white rounded hover:bg-zinc-800">
-                          {editingNoteId ? "Save" : "Create"}
+                          {editingNoteId ? "保存" : "创建"}
                         </button>
                       </div>
                     </div>
@@ -1003,7 +958,7 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
                             <button
                               onClick={() => copyNoteContent(note.content, note._id)}
                               className={`${iconClasses} hover:text-blue-500 transition-colors`}>
-                              {copiedNoteId === note._id ? "Copied!" : <Copy className="w-4 h-4" />}
+                              {copiedNoteId === note._id ? "已复制!" : <Copy className="w-4 h-4" />}
                             </button>
                             <button
                               onClick={() => {
@@ -1016,7 +971,7 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
                             </button>
                             <button
                               onClick={() => {
-                                if (window.confirm("Delete this note?")) {
+                                if (window.confirm("删除此笔记?")) {
                                   deleteNote({ id: note._id });
                                 }
                               }}
@@ -1041,7 +996,7 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
                                           <button
                                             onClick={() => copyCode(code)}
                                             className="hover:text-white transition-colors">
-                                            {copied ? "Copied!" : <Copy className="w-4 h-4" />}
+                                            {copied ? "已复制!" : <Copy className="w-4 h-4" />}
                                           </button>
                                         </div>
                                         <SyntaxHighlighter
@@ -1071,7 +1026,7 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
                                         <button
                                           onClick={() => copyCode(code)}
                                           className="hover:text-white transition-colors">
-                                          {copied ? "Copied!" : <Copy className="w-4 h-4" />}
+                                          {copied ? "已复制!" : <Copy className="w-4 h-4" />}
                                         </button>
                                       </div>
                                       <SyntaxHighlighter
@@ -1097,7 +1052,7 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
                           )}
                         </div>
                         <div className={`text-xs ${mutedTextClasses} mt-2`}>
-                          Last updated: {new Date(note.updatedAt).toLocaleString()}
+                          最后更新: {new Date(note.updatedAt).toLocaleString()}
                         </div>
                       </div>
                     ))}
@@ -1110,7 +1065,7 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
           {/* Docs Section - Full Width */}
           <div className="w-full">
             <h2 className={`text-xl font-normal mb-3 tracking-tighter ${iconClasses}`}>
-              Collaborative Docs <span className="text-sm">(Public)</span>
+              协同文档 <span className="text-sm">(公开)</span>
             </h2>
             <div className={`${cardClasses} rounded-lg p-4 shadow border border-zinc-300`}>
               <TipTapEditor />
@@ -1143,7 +1098,7 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
       {showFloatingBox && (
         <a href="https://convex.link/chatsynclinks" target="_blank" rel="noopener noreferrer">
           <div className="fixed bottom-4 right-4 bg-black text-white p-2 rounded-lg shadow flex items-center gap-3 z-50">
-            <span>Powered by</span>
+            <span>技术支持</span>
             <img src="/convex-logo-white.svg" alt="Convex Logo" className="h-4" />
             <button
               onClick={() => setShowFloatingBox(false)}
@@ -1165,34 +1120,7 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
       <footer className="relative w-full py-6 px-4 mt-5">
         <div className="max-w-7xl mx-auto text-center">
           <p className={`${iconClasses} text-sm mb-2`}>
-            All data is cleared every five hours via{" "}
-            <a
-              href="https://docs.convex.dev/scheduling/cron-jobs"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-500 hover:opacity-80 transition-opacity">
-              Convex Cron Jobs
-            </a>
-          </p>
-          <p className={`${iconClasses} text-sm flex items-center justify-center gap-1`}>
-            Open Source and built with ❤️ at{" "}
-            <a
-              href="https://convex.link/chatsynclinks"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:opacity-80 transition-opacity">
-              Convex
-            </a>
-            .{" "}
-            <a
-              href="https://github.com/waynesutton/todohosted"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:opacity-80 transition-opacity flex items-center gap-1">
-              <Github className="w-4 h-4" />
-              The source code is available on GitHub
-            </a>
-            .
+            所有聊天和提醒每天通过定时任务自动清理。
           </p>
         </div>
       </footer>
@@ -1214,44 +1142,44 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
             </button>
 
             <h2 className={`text-2xl font-normal tracking-tighter ${textClasses} mb-6`}>
-              Features
+              功能特点
             </h2>
 
             <div className="space-y-8">
               <div>
-                <h3 className={`text-lg font-medium ${textClasses} mb-3`}>Real-time Chat</h3>
+                <h3 className={`text-lg font-medium ${textClasses} mb-3`}>实时聊天</h3>
                 <ul className={`list-disc pl-5 space-y-2 ${textClasses}`}>
-                  <li>Send and receive chat messages instantly</li>
-                  <li>AI-powered chat responses using "@ai" command</li>
-                  <li>Create reminders by typing "remind me" in chat</li>
-                  <li>Create notes by typing "note:" in chat</li>
-                  <li>Search functionality for messages</li>
-                  <li>Like messages and see like counts</li>
-                  <li>Send emoji reactions</li>
-                  <li>Message sound notifications with mute control</li>
+                  <li>即时发送和接收聊天消息</li>
+                  <li>使用 "@ai" 命令获取AI回复</li>
+                  <li>在聊天中输入 "remind me" 创建提醒</li>
+                  <li>在聊天中输入 "note:" 创建笔记</li>
+                  <li>消息搜索功能</li>
+                  <li>点赞消息并查看点赞数</li>
+                  <li>发送表情反应</li>
+                  <li>消息声音通知，支持静音控制</li>
                 </ul>
               </div>
 
               <div>
-                <h3 className={`text-lg font-medium ${textClasses} mb-3`}>Notes</h3>
+                <h3 className={`text-lg font-medium ${textClasses} mb-3`}>笔记</h3>
                 <ul className={`list-disc pl-5 space-y-2 ${textClasses}`}>
-                  <li>Create and manage notes for each page</li>
-                  <li>Rich text editing support</li>
-                  <li>Title and content organization</li>
-                  <li>Preview with content truncation</li>
-                  <li>Copy note content with one click</li>
-                  <li>Real-time updates across all clients</li>
+                  <li>为每个页面创建和管理笔记</li>
+                  <li>富文本编辑支持</li>
+                  <li>标题和内容组织</li>
+                  <li>内容截断预览</li>
+                  <li>一键复制笔记内容</li>
+                  <li>所有客户端实时更新</li>
                 </ul>
               </div>
 
               <div>
-                <h3 className={`text-lg font-medium ${textClasses} mb-3`}>Reminders/Todos</h3>
+                <h3 className={`text-lg font-medium ${textClasses} mb-3`}>待办事项</h3>
                 <ul className={`list-disc pl-5 space-y-2 ${textClasses}`}>
-                  <li>Create and manage public reminders</li>
-                  <li>Toggle completion status</li>
-                  <li>Upvote and downvote reminders</li>
-                  <li>Real-time updates across all connected clients</li>
-                  <li>Delete reminders with hover controls</li>
+                  <li>创建和管理公开提醒</li>
+                  <li>切换完成状态</li>
+                  <li>赞成和反对提醒</li>
+                  <li>所有连接客户端实时更新</li>
+                  <li>悬停控制删除提醒</li>
                 </ul>
               </div>
             </div>
@@ -1263,10 +1191,10 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
       {showWarning && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
           <div className={`${cardClasses} rounded-lg max-w-md w-full p-6 relative`}>
-            <h2 className={`text-xl font-medium ${textClasses} mb-4`}>⚠️ Public Demo Warning</h2>
+            <h2 className={`text-xl font-medium ${textClasses} mb-4`}>⚠️ 公开演示警告</h2>
             <p className={`${textClasses} mb-6`}>
-              Any text you enter in this demo is publicly visible to showcase Convex sync features.
-              Please be kind!
+              您在此演示中输入的任何内容都将公开可见，以展示Convex同步功能。
+              请文明发言！
             </p>
             <div className="flex justify-end">
               <button
@@ -1276,7 +1204,7 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
                   localStorage.setItem("hasShownWarning", "true");
                 }}
                 className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-                I Understand
+                我了解
               </button>
             </div>
           </div>
@@ -1298,8 +1226,8 @@ function App() {
           if (pageId) {
             sendPageMessage({
               pageId,
-              text: 'Start typing to chat, use "@ai" to ask OpenAI, type "remind me" to set a reminder, or type "note:" to create a new note.',
-              sender: "System",
+text: '开始聊天，输入 @ai 询问AI，输入 remind me 设置提醒，或输入 note: 创建笔记。',
+              sender: "系统",
             });
           }
         })
@@ -1310,10 +1238,10 @@ function App() {
   }, [defaultPage]);
 
   if (defaultPage === undefined)
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+    return <div className=" min-h-screen flex items-center justify-center">加载中...</div>;
 
   if (defaultPage === null)
-    return <div className="min-h-screen flex items-center justify-center">Error loading page</div>;
+    return <div className="min-h-screen flex items-center justify-center">加载页面出错</div>;
 
   return (
     <Router>

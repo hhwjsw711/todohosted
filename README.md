@@ -1,190 +1,190 @@
-# Realtime AI Chat, ToDo List, and Notes Sync App on Convex - Sync Engine
+# 基于Convex的实时AI聊天、待办事项和笔记同步应用 - Sync Engine
 
-An open source chat and reminder application built with [Convex](https://convex.link/chatsynclinks), Clerk, and React. This application features real-time chat, task management, collaborative document editing, and an administrative dashboard for moderation.
+一个开源的聊天和提醒应用程序，基于 [Convex](https://convex.link/chatsynclinks)、Clerk 和 React 构建。该应用具有实时聊天、任务管理、协作文档编辑和管理后台审核功能。
 
 ![Sync Engine Screenshot](https://syncengine.dev/syncenginescreenshot.png)
 
-## Features
+## 功能特点
 
-- **Real-time Chat:**
+- **实时聊天:**
 
-  - Public content warning for first-time users
-  - Send and receive chat messages instantly
-  - Set and customize your username at any time
-  - AI-powered chat responses using "@ai" command
-  - Real-time message streaming from OpenAI
-  - Create reminders by typing "remind me" in chat
-  - Create notes by typing "note:" in chat
-  - Search functionality for messages using vector search
-  - Like messages and see like counts
-  - Send emoji reactions
-  - Message sound notifications with mute control
-  - Instant muting of chat sounds
-  - Threaded AI responses
-  - Message highlighting for search results
-  - Code block syntax highlighting with copy functionality
-  - Markdown support for rich text formatting
-  - Real-time message streaming with typing indicators
-  - Assistant UI integration for enhanced chat experience
-  - Automatic cleanup every 5 hours with system message restoration
+  - 首次用户公开内容警告
+  - 即时发送和接收聊天消息
+  - 随时设置和自定义用户名
+  - 使用 "@ai" 命令获取AI回复
+  - 来自OpenAI的实时消息流
+  - 在聊天中输入 "remind me" 创建提醒
+  - 在聊天中输入 "note:" 创建笔记
+  - 使用向量搜索搜索消息
+  - 点赞消息并查看点赞数
+  - 发送表情反应
+  - 消息声音通知，支持静音控制
+  - 即时切换聊天静音
+  - AI响应线程化
+  - 搜索结果消息高亮显示
+  - 代码块语法高亮并支持复制
+  - 支持Markdown富文本格式
+  - 带输入提示的实时消息流
+  - 集成Assistant UI增强聊天体验
+  - 每5小时自动清理并恢复系统消息
 
-- **Collaborative Document Editing:**
+- **协作文档编辑:**
 
-  - Real-time collaborative text editing with Liveblocks
-  - Multiple users can edit documents simultaneously
-  - Live presence indicators showing who is typing
-  - Document title collaboration
-  - Save and manage multiple documents per page
-  - Rich text formatting with TipTap editor
-  - Document version history
-  - Expandable document preview
-  - Quick actions for editing and deleting documents
-  - Live cursors and selections
-  - Collaborative comments and threads
-  - Document organization with titles and content
-  - Real-time updates across all clients
-  - Automatic content saving
-  - Document search and filtering
-  - Per-page document management
-  - Document deletion controls
-  - Document preview with content truncation
-  - Last updated timestamps
-  - Bulk document management per page
+  - 使用Liveblocks实时协作编辑
+  - 多用户同时编辑文档
+  - 实时显示谁正在输入
+  - 文档标题协作
+  - 每页面保存和管理多个文档
+  - 使用TipTap编辑器富文本格式
+  - 文档版本历史
+  - 可展开的文档预览
+  - 快速编辑和删除文档操作
+  - 实时光标和选中文本
+  - 协作评论和线程
+  - 标题和内容组织文档
+  - 所有客户端实时更新
+  - 自动保存内容
+  - 文档搜索和筛选
+  - 每页面文档管理
+  - 文档删除控制
+  - 内容截断的文档预览
+  - 最后更新时间戳
+  - 每页面批量文档管理
 
-- **User Experience:**
+- **用户体验:**
 
-  - First-time user warning about public content
-  - Customizable username setting
-  - Mobile-responsive design
-  - Sound notifications with mute option
-  - Real-time message streaming
-  - Instant search results
-  - Beautiful UI with smooth transitions
-  - Hover tooltips for better UX
-  - Expandable content sections
-  - Tab-based navigation for different content types
-  - Local storage for user preferences
-  - Responsive mobile menu with hamburger navigation
-  - Accessible UI elements with ARIA labels
-  - Smooth scrolling to highlighted messages
-  - Copy functionality for code blocks and notes
-  - Automatic data cleanup every 5 hours
+  - 首次用户公开内容警告
+  - 可自定义用户名设置
+  - 移动端响应式设计
+  - 声音通知，支持静音选项
+  - 实时消息流
+  - 即时搜索结果
+  - 精美UI和流畅过渡
+  - 更好体验的悬停提示
+  - 可展开的内容部分
+  - 不同内容类型的标签导航
+  - 本地存储用户偏好
+  - 带汉堡菜单的响应式移动菜单
+  - 带ARIA标签的无障碍UI元素
+  - 平滑滚动到高亮消息
+  - 代码块和笔记复制功能
+  - 每5小时自动数据清理
 
-- **Notes:**
+- **笔记:**
 
-  - Create and manage notes for each page
-  - Rich text editing support
-  - Title and content organization
-  - Preview with content truncation
-  - Copy note content with one click
-  - Real-time updates across all clients
-  - Edit and delete functionality
-  - Timestamp tracking for updates
-  - Expandable note content
-  - Group hover controls for note actions
-  - Toggle view for messages, todos, and notes per page
-  - Bulk actions for clearing messages, todos, and notes
-  - Individual content management for each page
-  - Real-time content updates
-  - Markdown support for notes
+  - 为每页面创建和管理笔记
+  - 富文本编辑支持
+  - 标题和内容组织
+  - 内容截断预览
+  - 一键复制笔记内容
+  - 所有客户端实时更新
+  - 编辑和删除功能
+  - 更新时间戳跟踪
+  - 可展开的笔记内容
+  - 笔记操作的悬停控制
+  - 每页面切换消息、待办和笔记视图
+  - 批量清除消息、待办和笔记操作
+  - 每页面独立内容管理
+  - 实时内容更新
+  - 笔记支持Markdown
 
-- **Reminders/Todos:**
+- **待办事项:**
 
-  - Create and manage public reminders
-  - Toggle completion status
-  - Upvote and downvote reminders
-  - Real-time updates across all connected clients
-  - Delete reminders with hover controls
-  - Create todos directly from chat using "remind me"
-  - Vote count display
-  - Group hover animations for controls
-  - Visual completion indicators
-  - Timestamp tracking for todos
+  - 创建和管理公开提醒
+  - 切换完成状态
+  - 赞成和反对提醒
+  - 所有连接客户端实时更新
+  - 悬停控制删除提醒
+  - 直接在聊天中使用 "remind me" 创建待办
+  - 投票计数显示
+  - 控制的悬停动画
+  - 视觉完成指示器
+  - 待办时间戳跟踪
 
-- **Search Functionality:**
+- **搜索功能:**
 
-  - Real-time search as you type
-  - Message highlighting for search results
-  - Search results dropdown
-  - Click-to-scroll to message
-  - Search in both desktop and mobile views
-  - Clear search functionality
-  - Visual feedback for search matches
-  - Vector-based semantic search
-  - Filter search by sender
+  - 实时搜索即输即搜
+  - 搜索结果消息高亮显示
+  - 搜索结果下拉菜单
+  - 点击滚动到消息
+  - 桌面和移动端搜索
+  - 清除搜索功能
+  - 搜索匹配的视觉反��
+  - 基于向量的语义搜索
+  - 按发送者筛选搜索
 
-- **Admin Dashboard:**
-  - Moderation dashboard at `/mod`
-  - Sign in using Clerk to manage your profile
-  - View and delete individual or all chat messages
-  - Manage all reminders from one place
-  - Download chat history as CSV
-  - Create and manage multiple chat rooms
-  - Enable/disable chat rooms
-  - View message and reminder statistics
-  - Toggle view for messages, todos, notes, and documents per page
-  - Bulk actions for clearing messages, todos, notes, and documents
-  - Individual content management for each page
-  - Real-time content updates
-  - Document management per page
-  - Document preview in admin interface
-  - Document deletion controls
-  - Document organization by page
+- **管理后台:**
+  - `/mod` 审核管理后台
+  - 使用Clerk登录管理个人资料
+  - 查看和删除单条或所有聊天消息
+  - 统一管理所有提醒
+  - 下载聊天历史为CSV
+  - 创建和管理多个聊天室
+  - 启用/禁用聊天室
+  - 查看消息和提醒统计
+  - 每页面切换消息、待办、笔记和文档视图
+  - 批量清除消息、待办、笔记和文档操作
+  - 每页面独立内容管理
+  - 实时内容更新
+  - 每页面文档管理
+  - 管理界面文档预览
+  - 文档删除控制
+  - 按页面组织文档
 
-## Stack
+## 技术栈
 
-- **Frontend:**
-
-  - **Language:** TypeScript
-  - **Framework:** React 18
-  - **Build Tool:** Vite
-  - **Styling:** Tailwind CSS
-  - **Routing:** React Router
-  - **UI Components:** Lucide Icons
-  - **Code Highlighting:** react-syntax-highlighter
+- **前端:**
+ 
+  - **语言:** TypeScript
+  - **框架:** React 18
+  - **构建工具:** Vite
+  - **样式:** Tailwind CSS
+  - **路由:** React Router
+  - **UI组件:** Lucide Icons
+  - **代码高亮:** react-syntax-highlighter
   - **Markdown:** react-markdown
-  - **Real-time Collaboration:** Liveblocks
-  - **Rich Text Editor:** TipTap
+  - **实时协作:** Liveblocks
+  - **富文本编辑器:** TipTap
 
-- **Backend:**
-
-  - **Database & Functions:** [Convex](https://convex.link/chatsynclinks)
-  - **AI Integration:** OpenAI GPT-4
-  - **Vector Search:** Convex Vector Search
-  - **Cron Jobs:** Convex Scheduling
+- **后端:**
+ 
+  - **数据库和函数:** [Convex](https://convex.link/chatsynclinks)
+  - **AI集成:** OpenAI GPT-4
+  - **向量搜索:** Convex Vector Search
+  - **定时任务:** Convex Scheduling
   - **WebSocket:** Convex Real-time Sync
 
-- **Authentication:**
+- **认证:**
+ 
+  - **提供商:** Clerk
+  - **功能:** 用户管理、基于角色的访问控制
 
-  - **Provider:** Clerk
-  - **Features:** User management, role-based access
+- **托管:**
+ 
+  - **平台:** Netlify
+  - **数据库:** Convex Cloud
+  - **实时:** WebSocket (Convex)
 
-- **Hosting:**
-  - **Platform:** Netlify
-  - **Database:** Convex Cloud
-  - **Real-time:** WebSocket (Convex)
+## 数据清理
 
-## Data Cleanup
+所有数据（聊天、提醒、笔记和文档）会通过Convex定时任务每5小时自动清理一次（从PT时间12:00 PM开始）。每次清理后，系统消息会自动发布到每个聊天中以维护上下文。这有助于为所有用户保持干净和新鲜的环境。
 
-All data (chats, reminders, notes, and documents) is automatically cleared every 5 hours starting at 12:00 PM PT via Convex Cron Jobs. After each cleanup, a system message is automatically posted to each chat to maintain context. This helps maintain a clean and fresh environment for all users.
+## 快速开始
 
-## Getting Started
-
-1. Clone the repository:
+1. 克隆仓库：
 
    ```bash
    git clone https://github.com/waynesutton/todohosted.git
    cd todohosted
    ```
 
-2. Install dependencies:
-
+2. 安装依赖：
    ```bash
    bun install
    ```
 
-3. Set up environment variables:
-   Create a `.env.local` file with:
+3. 设置环境变量：
+   创建 `.env.local` 文件：
 
    ```
    VITE_CONVEX_URL=your_convex_deployment_url
@@ -192,17 +192,17 @@ All data (chats, reminders, notes, and documents) is automatically cleared every
    OPENAI_API_KEY=your_openai_api_key
    ```
 
-4. Start the development server:
+4. 启动开发服务器：
    ```bash
    bun dev
    ```
 
-## Contributing
+## 贡献
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+欢迎贡献！请随时提交Pull Request。
 
-## License
+## 许可证
 
-This project is licensed under the MIT License.
+本项目基于MIT许可证授权。
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/3ed77b58-4c94-4674-9443-f2ed21fe9669/deploy-status)](https://app.netlify.com/sites/insyc/deploys)

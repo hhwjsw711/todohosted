@@ -6,7 +6,7 @@ const AboutPage = () => {
   const { user } = useUser();
   const [isDark, setIsDark] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-  const [showFloatingBox, setShowFloatingBox] = useState(true);
+  const [showFloatingBox, setShowFloatingBox] = useState(false);
 
   const iconClasses = isDark ? "text-zinc-400" : "text-zinc-600";
   const cardClasses = isDark ? "bg-zinc-900" : "bg-white border border-zinc-200 shadow-sm";
@@ -47,7 +47,7 @@ const AboutPage = () => {
               target="_blank"
               rel="noopener noreferrer"
               className="text-sm md:text-xl">
-              AI Chat & ToDo List Sync App
+              AI聊天与待办同步应用
             </a>
           </h1>
 
@@ -65,14 +65,14 @@ const AboutPage = () => {
               target="_blank"
               rel="noopener noreferrer"
               className={`${iconClasses} hover:opacity-80 transition-opacity`}>
-              Docs
+              文档
             </a>
             <a
               href="https://stack.convex.dev/"
               target="_blank"
               rel="noopener noreferrer"
               className={`${iconClasses} hover:opacity-80 transition-opacity`}>
-              Blog
+              博客
             </a>
             <button
               onClick={() => setIsDark(!isDark)}
@@ -109,14 +109,14 @@ const AboutPage = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 className={`${iconClasses} hover:opacity-80 transition-opacity`}>
-                Docs
+                文档
               </a>
               <a
                 href="https://stack.convex.dev/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className={`${iconClasses} hover:opacity-80 transition-opacity`}>
-                Blog
+                博客
               </a>
             </div>
           </div>
@@ -129,39 +129,39 @@ const AboutPage = () => {
           {/* Hero Section */}
           <div className="text-center mb-16">
             <h1 className={`text-4xl font-normal tracking-tighter ${iconClasses} mb-4`}>
-              AI Chat & ToDo List Sync App
+              AI聊天与待办同步应用
             </h1>
-            <p className={`${iconClasses}`}>A real-time collaborative platform powered by Convex</p>
+            <p className={`${iconClasses}`}>基于Convex的实时协作平台</p>
           </div>
 
           {/* Features Section */}
           <div className={`${cardClasses} rounded-lg p-8 mb-16`}>
             <h2 className={`text-2xl font-normal tracking-tighter ${iconClasses} mb-6`}>
-              Features
+              功能特点
             </h2>
 
             <div className="space-y-8">
               <div>
-                <h3 className={`text-lg font-medium ${iconClasses} mb-3`}>Real-time Chat</h3>
+                <h3 className={`text-lg font-medium ${iconClasses} mb-3`}>实时聊天</h3>
                 <ul className={`list-disc pl-5 space-y-2 ${iconClasses}`}>
-                  <li>Send and receive chat messages instantly</li>
-                  <li>AI-powered chat responses using "@ai" command</li>
-                  <li>Real-time message streaming from OpenAI</li>
-                  <li>Create reminders by typing "remind me" in chat</li>
-                  <li>Search functionality for messages using vector search</li>
-                  <li>Like messages and see like counts</li>
-                  <li>Send emoji reactions</li>
+                  <li>即时发送和接收聊天消息</li>
+                  <li>使用 "@ai" 命令获取AI回复</li>
+                  <li>来自OpenAI的实时消息流</li>
+                  <li>在聊天中输入 "remind me" 创建提醒</li>
+                  <li>使用向量搜索功能搜索消息</li>
+                  <li>点赞消息并查看点赞数</li>
+                  <li>发送表情反应</li>
                 </ul>
               </div>
 
               <div>
-                <h3 className={`text-lg font-medium ${iconClasses} mb-3`}>Reminders/Todos</h3>
+                <h3 className={`text-lg font-medium ${iconClasses} mb-3`}>待办事项</h3>
                 <ul className={`list-disc pl-5 space-y-2 ${iconClasses}`}>
-                  <li>Create and manage public reminders</li>
-                  <li>Toggle completion status</li>
-                  <li>Upvote and downvote reminders</li>
-                  <li>Real-time updates across all connected clients</li>
-                  <li>Delete reminders with hover controls</li>
+                  <li>创建和管理公开提醒</li>
+                  <li>切换完成状态</li>
+                  <li>赞成和反对提醒</li>
+                  <li>所有连接客户端实时更新</li>
+                  <li>悬停控制删除提醒</li>
                 </ul>
               </div>
             </div>
@@ -169,35 +169,35 @@ const AboutPage = () => {
 
           {/* Pricing Section */}
           <div className={`${cardClasses} rounded-lg p-8`}>
-            <h2 className={`text-2xl font-normal tracking-tighter ${iconClasses} mb-6`}>Pricing</h2>
+            <h2 className={`text-2xl font-normal tracking-tighter ${iconClasses} mb-6`}>价格</h2>
 
             <div className={`${isDark ? "bg-zinc-800" : "bg-zinc-50"} rounded-lg p-6`}>
               <div className="text-center">
-                <h3 className={`text-xl font-medium ${iconClasses} mb-2`}>Free Forever</h3>
-                <p className={`text-3xl font-bold ${iconClasses} mb-4`}>$0</p>
-                <p className={`${iconClasses} mb-6`}>All features included</p>
+                <h3 className={`text-xl font-medium ${iconClasses} mb-2`}>免费使用</h3>
+                <p className={`text-3xl font-bold ${iconClasses} mb-4`}>¥0</p>
+                <p className={`${iconClasses} mb-6`}>包含所有功能</p>
               </div>
 
               <ul className={`space-y-3 ${iconClasses}`}>
                 <li className="flex items-center">
                   <span className="mr-2">✓</span>
-                  Unlimited messages
+                  无限消息
                 </li>
                 <li className="flex items-center">
                   <span className="mr-2">✓</span>
-                  AI chat assistance
+                  AI聊天助手
                 </li>
                 <li className="flex items-center">
                   <span className="mr-2">✓</span>
-                  Real-time collaboration
+                  实时协作
                 </li>
                 <li className="flex items-center">
                   <span className="mr-2">✓</span>
-                  Vector search
+                  向量搜索
                 </li>
                 <li className="flex items-center">
                   <span className="mr-2">✓</span>
-                  Todo management
+                  待办管理
                 </li>
               </ul>
             </div>
@@ -209,7 +209,7 @@ const AboutPage = () => {
       {showFloatingBox && (
         <a href="https://convex.link/chatsynclinks" target="_blank" rel="noopener noreferrer">
           <div className="fixed bottom-4 right-4 bg-black text-white p-2 rounded-lg shadow flex items-center gap-3 z-50">
-            <span>Powered by</span>
+            <span>技术支持</span>
             <img src="/convex-logo-white.svg" alt="Convex Logo" className="h-4" />
             <button
               onClick={() => setShowFloatingBox(false)}
@@ -224,40 +224,7 @@ const AboutPage = () => {
       <footer className="relative w-full py-6 px-4 mt-1">
         <div className="max-w-7xl mx-auto text-center">
           <p className={`${iconClasses} text-sm mb-2`}>
-            All Chats and Reminders are cleared daily via{" "}
-            <a
-              href="https://docs.convex.dev/scheduling/cron-jobs"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-500 hover:opacity-80 transition-opacity">
-              Convex Cron Jobs
-            </a>
-          </p>
-          <p className={`${iconClasses} text-sm`}>
-            Open Source and built with ❤️ at{" "}
-            <a
-              href="https://convex.link/chatsynclinks"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:opacity-80 transition-opacity">
-              Convex
-            </a>
-            . Powered by{" "}
-            <a
-              href="https://convex.link/chatsynclinks"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:opacity-80 transition-opacity">
-              Convex
-            </a>
-            . The source code is available on{" "}
-            <a
-              href="https://github.com/waynesutton/todohosted"
-              target="_blank"
-              rel="noopener noreferrer">
-              GitHub
-            </a>
-            .
+            所有聊天和提醒每天通过定时任务自动清理。
           </p>
         </div>
       </footer>

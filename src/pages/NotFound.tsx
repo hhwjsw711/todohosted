@@ -10,9 +10,9 @@ export const NotFound: React.FC = () => {
         <h1 className="text-[12rem] font-bold leading-none tracking-tighter animate-glow">404</h1>
 
         <div className="space-y-4">
-          <h2 className="text-4xl font-light">Page Not Found</h2>
+          <h2 className="text-4xl font-light">页面未找到</h2>
           <p className="text-zinc-400 text-lg">
-            The page you're looking for doesn't exist or has been moved.
+            您查找的页面不存在或已被移动。
           </p>
         </div>
 
@@ -20,13 +20,13 @@ export const NotFound: React.FC = () => {
           <button
             onClick={() => navigate("/")}
             className="px-8 py-3 bg-white text-black rounded-full hover:bg-zinc-200 transition-colors text-sm font-medium">
-            Return Home
+            返回首页
           </button>
         </div>
       </div>
 
       <div className="absolute bottom-8 text-center text-zinc-500 text-sm">
-        <p>Built with Convex</p>
+        <p>用 ❤️ 为丽水市数据局打造。</p>
       </div>
     </div>
   );

@@ -19,15 +19,15 @@ const AdminDashboard = () => {
     <div className="p-8 font-sans">
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+          <h1 className="text-3xl font-bold">管理后台</h1>
           <div className="flex items-center gap-2 text-sm text-gray-600">
-            <span>Logged in as: {user?.emailAddresses[0]?.emailAddress}</span>
+            <span>已登录: {user?.emailAddresses[0]?.emailAddress}</span>
             <UserButton />
           </div>
         </div>
 
         <section className="mb-8">
-          <h2 className="text-xl font-semibold mb-2">Pages</h2>
+          <h2 className="text-xl font-semibold mb-2">页面</h2>
           <div className="space-y-4">
             {pages.map((page) => {
               const pageDocs = useQuery(api.docs.getPageDocs, { pageId: page._id }) ?? [];
@@ -38,11 +38,11 @@ const AdminDashboard = () => {
                     <button
                       className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600"
                       onClick={async () => {
-                        if (window.confirm("Delete all docs for this page?")) {
+                        if (window.confirm("删除此页面的所有文档?")) {
                           await deleteAllPageDocs({ pageId: page._id });
                         }
                       }}>
-                      Delete All Docs
+                      删除所有文档
                     </button>
                   </div>
                   <div className="space-y-2">
@@ -53,7 +53,7 @@ const AdminDashboard = () => {
                         <div>
                           <p className="font-medium">{doc.title}</p>
                           <p className="text-xs text-gray-500">
-                            Last updated: {new Date(doc.updatedAt).toLocaleString()}
+                            最后更新: {new Date(doc.updatedAt).toLocaleString()}
                           </p>
                         </div>
                       </div>
@@ -66,15 +66,15 @@ const AdminDashboard = () => {
         </section>
 
         <section className="mb-8">
-          <h2 className="text-xl font-semibold mb-2">Chat Messages</h2>
+          <h2 className="text-xl font-semibold mb-2">聊天消息</h2>
           <button
             className="mb-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
             onClick={async () => {
-              if (window.confirm("Are you sure you want to delete all chat messages?")) {
+              if (window.confirm("确定要删除所有聊天消息吗?")) {
                 await deleteAllMessages();
               }
             }}>
-            Delete All Chat Messages
+            删除所有聊天消息
           </button>
           <div className="space-y-2">
             {messages.map((message) => (
@@ -92,11 +92,11 @@ const AdminDashboard = () => {
                 <button
                   className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600"
                   onClick={async () => {
-                    if (window.confirm("Delete this message?")) {
+                    if (window.confirm("删除此消息?")) {
                       await deleteMessage({ id: message._id });
                     }
                   }}>
-                  Delete
+                  删除
                 </button>
               </div>
             ))}
@@ -104,15 +104,15 @@ const AdminDashboard = () => {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-2">Reminders</h2>
+          <h2 className="text-xl font-semibold mb-2">提醒</h2>
           <button
             className="mb-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
             onClick={async () => {
-              if (window.confirm("Are you sure you want to delete all reminders?")) {
+              if (window.confirm("确定要删除所有提醒吗?")) {
                 await deleteAllTodos();
               }
             }}>
-            Delete All Reminders
+            删除所有提醒
           </button>
           <div className="space-y-2">
             {todos.map((todo) => (
@@ -120,17 +120,17 @@ const AdminDashboard = () => {
                 <div>
                   <p>{todo.text}</p>
                   <p className="text-xs text-gray-500">
-                    Completed: {todo.completed ? "Yes" : "No"}
+                    {todo.completed ? "✓ 已完成" : "○ 未完成"}
                   </p>
                 </div>
                 <button
                   className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600"
                   onClick={async () => {
-                    if (window.confirm("Delete this reminder?")) {
+                    if (window.confirm("删除此提醒?")) {
                       await deleteTodo({ id: todo._id });
                     }
                   }}>
-                  Delete
+                  删除
                 </button>
               </div>
             ))}
@@ -145,7 +145,7 @@ const Header = () => (
   <header className="relative w-full py-6 px-4 bg-white border-b">
     <div className="max-w-7xl mx-auto flex justify-between items-center font-['Inter']">
       <a href="/" className="text-xl font-normal text-gray-900 hover:underline">
-        Home
+        首页
       </a>
       <div className="flex items-center gap-6">
         <a
@@ -160,7 +160,7 @@ const Header = () => (
           target="_blank"
           rel="noopener noreferrer"
           className="text-sm hover:opacity-80 transition-opacity">
-          Docs
+          文档
         </a>
       </div>
     </div>
@@ -171,18 +171,18 @@ const Footer = () => (
   <footer className="relative w-full py-6 px-4 mt-[40px] bg-white border-t">
     <div className="max-w-7xl mx-auto text-center">
       <p className="text-sm mb-2 text-gray-500">
-        All Chats and Reminders are cleared daily.{" "}
+        所有聊天和提醒每天自动清理。{" "}
         <a
           href="https://www.cronvex.com"
           target="_blank"
           rel="noopener noreferrer"
           className="text-blue-500 hover:opacity-80 transition-opacity">
-          Learn more at Cronvex
+          了解更多关于Cronvex
         </a>
-        .
+        。
       </p>
       <p className="text-sm text-gray-500">
-        Built with ❤️ at{" "}
+        ❤️ 于{" "}
         <a
           href="https://convex.link/chatsynclinks"
           target="_blank"
@@ -190,7 +190,7 @@ const Footer = () => (
           className="hover:opacity-80 transition-opacity">
           Convex
         </a>
-        . Powered by{" "}
+        。技术支持{" "}
         <a
           href="https://convex.link/chatsynclinks"
           target="_blank"
@@ -198,14 +198,14 @@ const Footer = () => (
           className="hover:opacity-80 transition-opacity">
           Convex
         </a>
-        . The source code is available on{" "}
+        。源代码可在{" "}
         <a
           href="https://github.com/waynesutton/todohosted"
           target="_blank"
           rel="noopener noreferrer">
           GitHub
         </a>
-        .
+        查看。
       </p>
     </div>
   </footer>
@@ -222,7 +222,7 @@ const ModPageContent = () => (
         <SignedOut>
           <div className="min-h-screen flex items-center justify-center">
             <div className="bg-white p-8 rounded-lg shadow">
-              <h2 className="text-2xl font-bold mb-6 text-center">Admin Login</h2>
+              <h2 className="text-2xl font-bold mb-6 text-center">管理员登录</h2>
               <SignIn afterSignInUrl="/mod" />
             </div>
           </div>

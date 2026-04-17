@@ -88,19 +88,19 @@ const AdminDashboard = () => {
         setNewPageTitle("");
         await sendPageMessage({
           pageId,
-          text: `Welcome to ${newPageTitle.trim()}!`,
+          text: `欢迎来到 ${newPageTitle.trim()}!`,
           sender: "System",
         });
         await sendPageMessage({
           pageId,
-          text: 'Start typing to chat, use "@ai" to ask OpenAI, type "remind me" to set a reminder, or type "note:" to create a new note.',
+          text: '开始聊天，输入 @ai 询问AI，输入 remind me 设置提醒，或输入 note: 创建笔记。',
           sender: "System",
         });
         window.location.href = `/${newPageSlug.trim()}`;
       }
     } catch (error) {
       console.error("Failed to create page:", error);
-      alert("Failed to create page. The URL might already be in use.");
+      alert("创建页面失败。该URL可能已被使用。");
     }
   };
 
@@ -143,7 +143,7 @@ const AdminDashboard = () => {
               />
             </a>
             <a href="/" className="text-sm md:text-xl">
-              Sync AI Demo
+              同步AI演示
             </a>
           </h1>
           <div className="flex items-center gap-6">
@@ -182,49 +182,49 @@ const AdminDashboard = () => {
       <div className="p-8 font-sans flex-1">
         <div className="max-w-4xl mx-auto">
           <div className="flex justify-between items-center mb-8">
-            <h1 className="text-3xl font-normal">Admin Dashboard</h1>
+            <h1 className="text-3xl font-normal">管理后台</h1>
             {/* <div className="text-sm text-gray-600">{user?.emailAddresses[0]?.emailAddress}</div> */}
           </div>
 
           {/* Create New Page Section */}
           <section className={`mb-8 ${cardClasses} p-6 rounded-lg shadow`}>
-            <h2 className="text-xl font-semibold mb-4">Create New Page</h2>
+            <h2 className="text-xl font-semibold mb-4">创建新页面</h2>
             <form onSubmit={handleCreatePage} className="space-y-4">
               <div>
                 <label className={`block text-sm font-medium ${mutedTextClasses} mb-1`}>
-                  Page URL (slug)
+                  页面URL
                 </label>
                 <input
                   type="text"
                   value={newPageSlug}
                   onChange={(e) => setNewPageSlug(e.target.value)}
-                  placeholder="e.g., team-chat"
+                  placeholder="例如: team-chat"
                   className={`w-full p-2 border rounded ${isDark ? "bg-zinc-700 border-zinc-600" : "bg-white border-zinc-200"} ${textClasses}`}
                 />
               </div>
               <div>
                 <label className={`block text-sm font-medium ${mutedTextClasses} mb-1`}>
-                  Page Title
+                  页面标题
                 </label>
                 <input
                   type="text"
                   value={newPageTitle}
                   onChange={(e) => setNewPageTitle(e.target.value)}
-                  placeholder="e.g., Team Chat"
+                  placeholder="例如: 团队聊天"
                   className={`w-full p-2 border rounded ${isDark ? "bg-zinc-700 border-zinc-600" : "bg-white border-zinc-200"} ${textClasses}`}
                 />
               </div>
               <button
                 type="submit"
                 className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-                Create Page
+                创建页面
               </button>
             </form>
           </section>
 
           {/* Manage Pages Section */}
           <section className="mb-8">
-            <h2 className="text-xl font-semibold mb-4">Manage Pages</h2>
+            <h2 className="text-xl font-semibold mb-4">管理页面</h2>
             <div className="space-y-4">
               {pages.map((page) => (
                 <div
@@ -235,7 +235,7 @@ const AdminDashboard = () => {
                       <h3 className="font-medium">{page.title}</h3>
                       <p className={mutedTextClasses}>/{page.slug}</p>
                       <p className="text-xs text-gray-400">
-                        Created: {new Date(page.createdAt).toLocaleString()}
+                        创建时间: {new Date(page.createdAt).toLocaleString()}
                       </p>
                     </div>
                     <div className="flex flex-col gap-2">
@@ -245,65 +245,65 @@ const AdminDashboard = () => {
                           target="_blank"
                           rel="noopener noreferrer"
                           className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">
-                          View
+                          查看
                         </a>
                         <button
                           onClick={() => togglePageStatus({ id: page._id })}
                           className={`px-3 py-1 rounded ${page.isActive ? "bg-yellow-500 hover:bg-yellow-600" : "bg-green-500 hover:bg-green-600"} text-white`}>
-                          {page.isActive ? "Disable" : "Enable"}
+                          {page.isActive ? "禁用" : "启用"}
                         </button>
                         <button
                           onClick={() => handleDownloadCsv(page)}
                           className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">
-                          Download Chat CSV
+                          下载聊天记录CSV
                         </button>
                       </div>
                       <div className="flex items-center gap-2">
                         <button
                           onClick={async () => {
-                            if (window.confirm("Delete all chat messages for this page?")) {
+                            if (window.confirm("删除此页面的所有聊天消息?")) {
                               await deleteAllMessages({ pageId: page._id });
                             }
                           }}
                           className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">
-                          Clear Chat
+                          清空聊天
                         </button>
                         <button
                           onClick={async () => {
-                            if (window.confirm("Delete all todos for this page?")) {
+                            if (window.confirm("删除此页面的所有待办?")) {
                               await deleteAllTodos({ pageId: page._id });
                             }
                           }}
                           className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">
-                          Clear Todos
+                          清空待办
                         </button>
                         <button
                           onClick={async () => {
-                            if (window.confirm("Delete all notes for this page?")) {
+                            if (window.confirm("删除此页面的所有笔记?")) {
                               await deleteAllNotes({ pageId: page._id });
                             }
                           }}
                           className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">
-                          Clear Notes
+                          清空笔记
                         </button>
                         <button
                           onClick={async () => {
-                            if (window.confirm("Delete all documents for this page?")) {
+                            if (window.confirm("删除此页面的所有文档?")) {
                               await deleteAllPageDocs({ pageId: page._id });
                             }
                           }}
                           className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">
-                          Clear Docs
+                          清空文档
                         </button>
                         {page.slug !== "default" && (
                           <button
                             onClick={() => {
-                              if (window.confirm("Delete this page and all its data?")) {
+                              if (window.confirm("删除此页面及其所有数据?")) {
                                 deletePage({ id: page._id });
                               }
                             }}
                             className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">
-                            Delete
+                            删除
                           </button>
                         )}
                       </div>
@@ -325,7 +325,7 @@ const AdminDashboard = () => {
                         }
                       }}
                       className={`${textClasses} text-sm hover:underline`}>
-                      {expandedPages[page._id] ? "Hide Content" : "Show Content"}
+                      {expandedPages[page._id] ? "隐藏内容" : "显示内容"}
                     </button>
                   </div>
 
@@ -337,22 +337,22 @@ const AdminDashboard = () => {
                             setActiveTab((prev) => ({ ...prev, [page._id]: "messages" }))
                           }
                           className={`px-3 py-1 rounded ${activeTab[page._id] === "messages" ? "bg-blue-500 text-white" : `${mutedTextClasses} hover:bg-zinc-100 dark:hover:bg-zinc-700`}`}>
-                          Messages
+                          消息
                         </button>
                         <button
                           onClick={() => setActiveTab((prev) => ({ ...prev, [page._id]: "todos" }))}
                           className={`px-3 py-1 rounded ${activeTab[page._id] === "todos" ? "bg-blue-500 text-white" : `${mutedTextClasses} hover:bg-zinc-100 dark:hover:bg-zinc-700`}`}>
-                          Todos
+                          待办
                         </button>
                         <button
                           onClick={() => setActiveTab((prev) => ({ ...prev, [page._id]: "notes" }))}
                           className={`px-3 py-1 rounded ${activeTab[page._id] === "notes" ? "bg-blue-500 text-white" : `${mutedTextClasses} hover:bg-zinc-100 dark:hover:bg-zinc-700`}`}>
-                          Notes
+                          笔记
                         </button>
                         <button
                           onClick={() => setActiveTab((prev) => ({ ...prev, [page._id]: "docs" }))}
                           className={`px-3 py-1 rounded ${activeTab[page._id] === "docs" ? "bg-blue-500 text-white" : `${mutedTextClasses} hover:bg-zinc-100 dark:hover:bg-zinc-700`}`}>
-                          Docs
+                          文档
                         </button>
                       </div>
 
@@ -374,12 +374,12 @@ const AdminDashboard = () => {
                                 </div>
                                 <button
                                   onClick={async () => {
-                                    if (window.confirm("Delete this message?")) {
+                                    if (window.confirm("删除此消息?")) {
                                       await deleteMessage({ id: message._id });
                                     }
                                   }}
                                   className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600">
-                                  Delete
+                                  删除
                                 </button>
                               </div>
                             ))}

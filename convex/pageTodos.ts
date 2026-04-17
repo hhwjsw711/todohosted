@@ -19,8 +19,8 @@ export const add = mutation({
   },
   handler: async (ctx, { pageId, text }) => {
     const page = await ctx.db.get(pageId);
-    if (!page) throw new Error("Page not found");
-    if (!page.isActive) throw new Error("Page is not active");
+    if (!page) throw new Error("页面未找到");
+    if (!page.isActive) throw new Error("页面未启用");
 
     const todoId = await ctx.db.insert("pageTodos", {
       pageId,
@@ -39,7 +39,7 @@ export const toggle = mutation({
   args: { id: v.id("pageTodos") },
   handler: async (ctx, { id }) => {
     const todo = await ctx.db.get(id);
-    if (!todo) throw new Error("Todo not found");
+    if (!todo) throw new Error("待办未找到");
 
     await ctx.db.patch(id, { completed: !todo.completed });
   },
@@ -56,7 +56,7 @@ export const upvote = mutation({
   args: { id: v.id("pageTodos") },
   handler: async (ctx, { id }) => {
     const todo = await ctx.db.get(id);
-    if (!todo) throw new Error("Todo not found");
+    if (!todo) throw new Error("待办未找到");
 
     await ctx.db.patch(id, { upvotes: (todo.upvotes ?? 0) + 1 });
     return (todo.upvotes ?? 0) + 1;
@@ -67,7 +67,7 @@ export const downvote = mutation({
   args: { id: v.id("pageTodos") },
   handler: async (ctx, { id }) => {
     const todo = await ctx.db.get(id);
-    if (!todo) throw new Error("Todo not found");
+    if (!todo) throw new Error("待办未找到");
 
     await ctx.db.patch(id, { downvotes: (todo.downvotes ?? 0) + 1 });
     return (todo.downvotes ?? 0) + 1;

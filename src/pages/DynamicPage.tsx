@@ -10,17 +10,17 @@ export const DynamicPage: React.FC = () => {
 
   // Show loading state while we wait for the page data
   if (page === undefined)
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+    return <div className="min-h-screen flex items-center justify-center">加载中...</div>;
 
   // Show 404 if page doesn't exist
   if (page === null)
-    return <div className="min-h-screen flex items-center justify-center">Page not found</div>;
+    return <div className="min-h-screen flex items-center justify-center">页面未找到</div>;
 
   // Show inactive message if page exists but is disabled
   if (!page.isActive)
     return (
       <div className="min-h-screen flex items-center justify-center">
-        This page is currently inactive.
+        此页面当前已停用。
       </div>
     );
 

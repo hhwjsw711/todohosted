@@ -275,9 +275,9 @@ export const streamResponse = action({
         }),
       });
 
-      if (!response.ok) throw new Error("OpenAI API request failed: " + response.statusText);
+      if (!response.ok) throw new Error("OpenAI API请求失败: " + response.statusText);
 
-      if (!response.body) throw new Error("Response body is null");
+      if (!response.body) throw new Error("响应体为空");
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder();

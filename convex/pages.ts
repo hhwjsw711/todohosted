@@ -54,7 +54,7 @@ export const createPage = mutation({
       .filter((q) => q.eq(q.field("slug"), slug))
       .first();
 
-    if (existingPage) throw new Error("Page with this URL already exists");
+    if (existingPage) throw new Error("此URL的页面已存在");
 
     const pageId = await ctx.db.insert("pages", {
       slug,
@@ -72,7 +72,7 @@ export const togglePageStatus = mutation({
   returns: v.null(),
   handler: async (ctx, { id }) => {
     const page = await ctx.db.get(id);
-    if (!page) throw new Error("Page not found");
+    if (!page) throw new Error("页面未找到");
 
     await ctx.db.patch(id, { isActive: !page.isActive });
     return null;
@@ -84,7 +84,7 @@ export const deletePage = mutation({
   returns: v.null(),
   handler: async (ctx, { id }) => {
     const page = await ctx.db.get(id);
-    if (!page) throw new Error("Page not found");
+    if (!page) throw new Error("页面未找到");
 
     // Delete all messages and todos associated with this page
     const pageMessages = await ctx.db

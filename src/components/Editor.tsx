@@ -39,7 +39,7 @@ export function Editor() {
   const otherUserTyping = others.some((user) => user.presence?.title && user.presence.title !== "");
 
   const liveblocks = useLiveblocksExtension({
-    initialContent: "Start typing here...",
+    initialContent: "在这里开始输入...",
   });
 
   const editor = useEditor({
@@ -60,7 +60,7 @@ export function Editor() {
   const handleSave = async () => {
     if (!editor || !defaultPage) return;
     const content = editor.getHTML();
-    const titleToSave = (currentTitle || "Untitled Document") as string;
+    const titleToSave = (currentTitle || "无标题文档") as string;
 
     if (editingDocId) {
       await updateDoc({
@@ -80,7 +80,7 @@ export function Editor() {
     // Reset everything after saving
     setLocalTitle("");
     room.updatePresence({ title: "" });
-    editor.commands.setContent("Start typing here...");
+    editor.commands.setContent("在这里开始输入...");
     setEditingDocId(null);
   };
 
@@ -88,17 +88,17 @@ export function Editor() {
     setEditingDocId(null);
     setLocalTitle("");
     room.updatePresence({ title: "" });
-    editor?.commands.setContent("Start typing here...");
+    editor?.commands.setContent("在这里开始输入...");
   };
 
   const handleDeleteDoc = async (id: Id<"pageDocs">) => {
-    if (confirm("Are you sure you want to delete this document?")) {
+    if (confirm("确定要删除此文档吗?")) {
       await deleteDoc({ id });
       if (editingDocId === id) {
         setEditingDocId(null);
         setLocalTitle("");
         room.updatePresence({ title: "" });
-        editor?.commands.setContent("Start typing here...");
+        editor?.commands.setContent("在这里开始输入...");
       }
     }
   };
@@ -110,12 +110,12 @@ export function Editor() {
 
   // Handle loading states
   if (defaultPage === undefined || docs === undefined) {
-    return <div className="p-4">Loading...</div>;
+    return <div className="p-4">加载中...</div>;
   }
 
   // Handle errors
   if (defaultPage === null) {
-    return <div className="p-4 text-red-500">Error loading page</div>;
+    return <div className="p-4 text-red-500">加载页面出错</div>;
   }
 
   return (
@@ -126,24 +126,24 @@ export function Editor() {
             type="text"
             value={typeof currentTitle === "string" ? currentTitle : ""}
             onChange={(e) => handleTitleChange(e.target.value)}
-            placeholder="Document title..."
+            placeholder="文档标题..."
             className="w-full px-3 py-1 border border-zinc-200 rounded"
           />
           {otherUserTyping && (
-            <div className="absolute -top-5 left-0 text-xs text-blue-500">Someone is typing...</div>
+            <div className="absolute -top-5 left-0 text-xs text-blue-500">有人正在输入...</div>
           )}
         </div>
         <button
           onClick={handleSave}
           className="px-3 py-1 text-sm bg-black text-white rounded hover:bg-zinc-800 flex items-center gap-2">
           <Save className="w-4 h-4" />
-          Save and Close
+          保存并关闭
         </button>
         <button
           onClick={handleNewDoc}
           className="px-3 py-1 text-sm bg-zinc-100 text-black rounded hover:bg-zinc-200 flex items-center gap-2">
           <PlusCircle className="w-4 h-4" />
-          New
+          新建
         </button>
       </div>
 

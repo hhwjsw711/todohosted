@@ -20,8 +20,8 @@ export const send = mutation({
   },
   handler: async (ctx, { pageId, text, sender }) => {
     const page = await ctx.db.get(pageId);
-    if (!page) throw new Error("Page not found");
-    if (!page.isActive) throw new Error("Page is not active");
+    if (!page) throw new Error("页面未找到");
+    if (!page.isActive) throw new Error("页面未启用");
 
     const messageId = await ctx.db.insert("pageMessages", {
       pageId,
@@ -39,7 +39,7 @@ export const toggleLike = mutation({
   returns: v.number(),
   handler: async (ctx, args) => {
     const message = await ctx.db.get(args.id);
-    if (!message) throw new Error("Message not found");
+    if (!message) throw new Error("消息未找到");
 
     const currentLikes = message.likes ?? 0;
     const newLikes = currentLikes + 1;

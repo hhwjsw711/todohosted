@@ -30,22 +30,22 @@ export const ChatBox = () => {
       await sendMessage({
         content,
         userId: user.id,
-        username: user.username || "Anonymous",
+        username: user.username || "匿名用户",
         isAi: false,
       });
       // Then send AI response
       await sendAiMessage(aiPrompt);
       await sendMessage({
-        content: "AI is thinking...",
+        content: "AI正在思考...",
         userId: "ai",
-        username: "AI Assistant",
+        username: "AI助手",
         isAi: true,
       });
     } else {
       await sendMessage({
         content,
         userId: user.id,
-        username: user.username || "Anonymous",
+        username: user.username || "匿名用户",
         isAi: false,
       });
     }
