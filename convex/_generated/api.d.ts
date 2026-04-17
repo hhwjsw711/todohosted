@@ -15,8 +15,8 @@ import type * as docs from "../docs.js";
 import type * as messages from "../messages.js";
 import type * as pageMessages from "../pageMessages.js";
 import type * as pageNotes from "../pageNotes.js";
-import type * as pageTodos from "../pageTodos.js";
 import type * as pages from "../pages.js";
+import type * as pageTodos from "../pageTodos.js";
 import type * as prosemirror from "../prosemirror.js";
 import type * as todos from "../todos.js";
 
@@ -41,8 +41,8 @@ declare const fullApi: ApiFromModules<{
   messages: typeof messages;
   pageMessages: typeof pageMessages;
   pageNotes: typeof pageNotes;
-  pageTodos: typeof pageTodos;
   pages: typeof pages;
+  pageTodos: typeof pageTodos;
   prosemirror: typeof prosemirror;
   todos: typeof todos;
 }>;
