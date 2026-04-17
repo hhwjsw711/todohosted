@@ -441,8 +441,8 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
         window.location.href = `/${newPageSlug.trim()}`;
       }
     } catch (error) {
-      console.error("Failed to create page:", error);
-      alert("Failed to create page. The URL might already be in use.");
+      console.error("创建页面失败:", error);
+      alert("创建页面失败。该URL可能已被使用。");
     }
   };
 
@@ -1191,10 +1191,9 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
       {showWarning && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
           <div className={`${cardClasses} rounded-lg max-w-md w-full p-6 relative`}>
-            <h2 className={`text-xl font-medium ${textClasses} mb-4`}>⚠️ 公开演示警告</h2>
+            <h2 className={`text-xl font-medium ${textClasses} mb-4`}>⚠️警告</h2>
             <p className={`${textClasses} mb-6`}>
-              您在此演示中输入的任何内容都将公开可见，以展示Convex同步功能。
-              请文明发言！
+              您在此输入的任何内容都将公开可见，请文明发言！
             </p>
             <div className="flex justify-end">
               <button
