@@ -216,9 +216,11 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
   const downvote = useMutation(api.todos.downvote);
   const askAIAction = useMutation(api.messages.askAI);
   const searchMessages = useAction(api.messages.searchMessages);
+  const generateWeeklyReport = useAction(api.messages.generateWeeklyReport);
   const createNote = useMutation(api.pageNotes.createNote);
   const updateNote = useMutation(api.pageNotes.updateNote);
   const deleteNote = useMutation(api.pageNotes.deleteNote);
+  const createDoc = useMutation(api.docs.createDoc);
   const createPage = useMutation(api.pages.createPage);
   const sendPageMessage = useMutation(api.pageMessages.send);
 
@@ -253,6 +255,24 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
   const [expandedNotes, setExpandedNotes] = useState<Record<Id<"pageNotes">, boolean>>({});
   const [newPageSlug, setNewPageSlug] = useState("");
   const [newPageTitle, setNewPageTitle] = useState("");
+  const [weeklyStartDate, setWeeklyStartDate] = useState("");
+  const [weeklyEndDate, setWeeklyEndDate] = useState("");
+  const [weeklyReportDraft, setWeeklyReportDraft] = useState("");
+  const [isGeneratingWeeklyReport, setIsGeneratingWeeklyReport] = useState(false);
+  const [weeklyReportSummary, setWeeklyReportSummary] = useState<{
+    totalTasks: number;
+    weeklyTasks: number;
+    missingFieldCounts: {
+      proposer: number;
+      clientContact: number;
+      description: number;
+      proposedAt: number;
+      dueDate: number;
+    };
+  } | null>(null);
+  const [weeklyDateBasis, setWeeklyDateBasis] = useState<
+    "respondedAt" | "proposedAt" | "dueDate" | "updatedAt" | "createdAt"
+  >("respondedAt");
 
   // Ref hooks
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -444,6 +464,101 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
       console.error("创建页面失败:", error);
       alert("创建页面失败。该URL可能已被使用。");
     }
+  };
+
+  const handleGenerateWeeklyReport = async () => {
+    if (!weeklyStartDate || !weeklyEndDate) {
+      alert("请先选择周报开始和结束日期。");
+      return;
+    }
+
+    const startDate = new Date(`${weeklyStartDate}T00:00:00`).getTime();
+    const endDate = new Date(`${weeklyEndDate}T23:59:59`).getTime();
+
+    if (startDate > endDate) {
+      alert("开始日期不能晚于结束日期。");
+      return;
+    }
+
+    setIsGeneratingWeeklyReport(true);
+
+    try {
+      const result = await generateWeeklyReport({
+        startDate,
+        endDate,
+        dateBasis: weeklyDateBasis,
+      });
+      setWeeklyReportDraft(result.report);
+      setWeeklyReportSummary({
+        totalTasks: result.totalTasks,
+        weeklyTasks: result.weeklyTasks,
+        missingFieldCounts: result.missingFieldCounts,
+      });
+    } catch (error) {
+      console.error("生成周报失败:", error);
+      alert("生成周报失败，请检查任务接口配置或稍后重试。");
+    } finally {
+      setIsGeneratingWeeklyReport(false);
+    }
+  };
+
+  const copyWeeklyReport = () => {
+    if (!weeklyReportDraft) return;
+    navigator.clipboard.writeText(weeklyReportDraft);
+    alert("周报内容已复制。");
+  };
+
+  const saveWeeklyReportAsDoc = async () => {
+    if (!pageId || !weeklyReportDraft.trim()) {
+      alert("请先生成周报内容。");
+      return;
+    }
+
+    const title =
+      weeklyStartDate && weeklyEndDate
+        ? `周报-${weeklyStartDate}-${weeklyEndDate}`
+        : `周报-${new Date().toISOString().slice(0, 10)}`;
+
+    try {
+      await createDoc({
+        pageId,
+        title,
+        content: `<pre>${weeklyReportDraft
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")}</pre>`,
+      });
+      alert("周报已保存到协同文档。");
+    } catch (error) {
+      console.error("保存周报失败:", error);
+      alert("保存失败，请稍后重试。");
+    }
+  };
+
+  const exportWeeklyReportAsWord = () => {
+    if (!weeklyReportDraft.trim()) {
+      alert("请先生成周报内容。");
+      return;
+    }
+
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"></head><body><pre>${weeklyReportDraft
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")}</pre></body></html>`;
+
+    const blob = new Blob(["\ufeff", html], {
+      type: "application/msword",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    const fileSuffix =
+      weeklyStartDate && weeklyEndDate
+        ? `${weeklyStartDate}_${weeklyEndDate}`
+        : new Date().toISOString().slice(0, 10);
+    link.download = `平台运维周报_${fileSuffix}.doc`;
+    link.click();
+    URL.revokeObjectURL(url);
   };
 
   // Message list rendering
@@ -721,6 +836,96 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
         <div className="absolute top-0 z-[-2] h-screen w-screen bg-[#F5F5F4] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.3),rgba(255,255,255,0))]"></div>
 
         <div className="w-full max-w-7xl flex flex-col gap-6 relative items-start mt-8">
+          <div className="w-full">
+            <h2 className={`text-xl font-normal mb-3 tracking-tighter ${iconClasses}`}>
+              周报生成
+            </h2>
+            <div className={`${cardClasses} rounded-lg p-4 shadow border border-zinc-300 space-y-4`}>
+              <div className="flex flex-col md:flex-row gap-3 md:items-end">
+                <div className="flex-1">
+                  <label className={`block text-sm mb-1 ${mutedTextClasses}`}>开始日期</label>
+                  <input
+                    type="date"
+                    value={weeklyStartDate}
+                    onChange={(e) => setWeeklyStartDate(e.target.value)}
+                    className={`w-full rounded border px-3 py-2 ${isDark ? "bg-zinc-800 border-zinc-700 text-zinc-100" : "bg-white border-zinc-300 text-zinc-900"}`}
+                  />
+                </div>
+                <div className="flex-1">
+                  <label className={`block text-sm mb-1 ${mutedTextClasses}`}>结束日期</label>
+                  <input
+                    type="date"
+                    value={weeklyEndDate}
+                    onChange={(e) => setWeeklyEndDate(e.target.value)}
+                    className={`w-full rounded border px-3 py-2 ${isDark ? "bg-zinc-800 border-zinc-700 text-zinc-100" : "bg-white border-zinc-300 text-zinc-900"}`}
+                  />
+                </div>
+                <div className="flex-1">
+                  <label className={`block text-sm mb-1 ${mutedTextClasses}`}>统计口径</label>
+                  <select
+                    value={weeklyDateBasis}
+                    onChange={(e) =>
+                      setWeeklyDateBasis(
+                        e.target.value as
+                          | "respondedAt"
+                          | "proposedAt"
+                          | "dueDate"
+                          | "updatedAt"
+                          | "createdAt"
+                      )
+                    }
+                    className={`w-full rounded border px-3 py-2 ${isDark ? "bg-zinc-800 border-zinc-700 text-zinc-100" : "bg-white border-zinc-300 text-zinc-900"}`}>
+                    <option value="respondedAt">按响应时间</option>
+                    <option value="proposedAt">按提出时间</option>
+                    <option value="dueDate">按计划完成时间</option>
+                    <option value="updatedAt">按更新时间</option>
+                    <option value="createdAt">按创建时间</option>
+                  </select>
+                </div>
+                <button
+                  onClick={handleGenerateWeeklyReport}
+                  disabled={isGeneratingWeeklyReport}
+                  className="px-4 py-2 bg-black text-white rounded hover:bg-zinc-800 disabled:opacity-60 disabled:cursor-not-allowed">
+                  {isGeneratingWeeklyReport ? "生成中..." : "生成周报"}
+                </button>
+                <button
+                  onClick={copyWeeklyReport}
+                  disabled={!weeklyReportDraft}
+                  className="px-4 py-2 bg-zinc-100 text-black rounded border border-zinc-300 hover:bg-zinc-200 disabled:opacity-60 disabled:cursor-not-allowed">
+                  复制内容
+                </button>
+                <button
+                  onClick={saveWeeklyReportAsDoc}
+                  disabled={!weeklyReportDraft || !pageId}
+                  className="px-4 py-2 bg-zinc-100 text-black rounded border border-zinc-300 hover:bg-zinc-200 disabled:opacity-60 disabled:cursor-not-allowed">
+                  保存到文档
+                </button>
+                <button
+                  onClick={exportWeeklyReportAsWord}
+                  disabled={!weeklyReportDraft}
+                  className="px-4 py-2 bg-zinc-100 text-black rounded border border-zinc-300 hover:bg-zinc-200 disabled:opacity-60 disabled:cursor-not-allowed">
+                  导出Word
+                </button>
+              </div>
+
+              {weeklyReportSummary && (
+                <div className={`text-sm ${mutedTextClasses}`}>
+                  本次共拉取任务 {weeklyReportSummary.totalTasks} 条，命中本周区间 {weeklyReportSummary.weeklyTasks} 条；
+                  缺失字段：提出人 {weeklyReportSummary.missingFieldCounts.proposer}、业务对接人 {weeklyReportSummary.missingFieldCounts.clientContact}、
+                  描述 {weeklyReportSummary.missingFieldCounts.description}、提出时间 {weeklyReportSummary.missingFieldCounts.proposedAt}、计划完成时间 {weeklyReportSummary.missingFieldCounts.dueDate}。
+                </div>
+              )}
+
+              <textarea
+                value={weeklyReportDraft}
+                onChange={(e) => setWeeklyReportDraft(e.target.value)}
+                placeholder="点击上方“生成周报”后，这里会出现可编辑周报草稿。"
+                rows={16}
+                className={`w-full rounded border p-3 text-sm leading-6 ${isDark ? "bg-zinc-900 border-zinc-700 text-zinc-100" : "bg-white border-zinc-300 text-zinc-900"}`}
+              />
+            </div>
+          </div>
+
           {/* Top Section - Chat and Todo */}
           <div className="w-full flex flex-col md:flex-row gap-6">
             {/* Chat Column - Full width on mobile, 2/3 on desktop */}
@@ -1068,7 +1273,7 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
               协同文档 <span className="text-sm">(公开)</span>
             </h2>
             <div className={`${cardClasses} rounded-lg p-4 shadow border border-zinc-300`}>
-              <TipTapEditor />
+              <TipTapEditor pageId={pageId} />
             </div>
           </div>
         </div>

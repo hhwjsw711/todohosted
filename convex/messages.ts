@@ -4,6 +4,68 @@ import { Id, Doc } from "./_generated/dataModel";
 import { internal } from "./_generated/api";
 import { api } from "./_generated/api";
 
+const TASK_API_BASE_URL =
+  process.env.TASK_API_BASE_URL ?? "https://accurate-shepherd-453.convex.site";
+
+const REPORT_TYPE_LABELS: Record<string, string> = {
+  feature_optimization: "功能优化",
+  data_maintenance: "数据维护与统计分析服务",
+  security_risk: "安全风险处理",
+  security_config: "安全风险处理",
+  bug_handling: "BUG处理",
+  incident_handling: "故障处理",
+  documentation: "文档管理",
+  server_config: "服务器配置",
+  permission_config: "权限配置",
+  third_party_integration: "三方对接",
+  consultation: "咨询协助",
+};
+
+const PLATFORM_LABELS: Record<string, string> = {
+  platform_wide: "整个平台",
+  ai_data_service: "AI数据服务",
+  datav: "DataV",
+  work_portal: "工作门户",
+  core_business_platform: "核心业务平台",
+  enterprise_tags: "企业标签",
+  staging_db: "前置库",
+  data_sharing_platform: "数据共享平台",
+  data_archive_platform: "数据归档平台",
+  data_feedback: "数据回流",
+  data_exchange_platform: "数据交换平台",
+  data_open_platform: "数据开放平台",
+  data_catalog_platform: "数据目录平台",
+  data_report_platform: "数据上报平台",
+  data_governance_platform: "数据治理平台",
+  town_warehouse: "镇街数仓",
+  topic_db: "专题库",
+  resource_view: "资源视窗",
+};
+
+function formatDateCN(timestamp?: number): string {
+  if (!timestamp) return "未填写";
+  const date = new Date(timestamp);
+  return `${date.getFullYear()}.${date.getMonth() + 1}.${date.getDate()}`;
+}
+
+function getTaskDateByBasis(
+  task: {
+    respondedAt?: number;
+    proposedAt?: number;
+    dueDate?: number;
+    updatedAt?: number;
+    createdAt?: number;
+  },
+  dateBasis: "respondedAt" | "proposedAt" | "dueDate" | "updatedAt" | "createdAt"
+): number | null {
+  return task[dateBasis] ?? null;
+}
+
+function inRange(timestamp: number | null, startDate: number, endDate: number): boolean {
+  if (!timestamp) return false;
+  return timestamp >= startDate && timestamp <= endDate;
+}
+
 // Updated textToVector: Sum each character's code into one of 100 buckets, then normalize.
 function textToVector(text: string): number[] {
   const vector = new Array(100).fill(0);
@@ -370,5 +432,165 @@ export const list = query({
         .take(50);
 
     return await ctx.db.query("messages").order("desc").take(50);
+  },
+});
+
+export const generateWeeklyReport = action({
+  args: {
+    startDate: v.number(),
+    endDate: v.number(),
+    dateBasis: v.union(
+      v.literal("respondedAt"),
+      v.literal("proposedAt"),
+      v.literal("dueDate"),
+      v.literal("updatedAt"),
+      v.literal("createdAt")
+    ),
+  },
+  returns: v.object({
+    report: v.string(),
+    totalTasks: v.number(),
+    weeklyTasks: v.number(),
+    missingFieldCounts: v.object({
+      proposer: v.number(),
+      clientContact: v.number(),
+      description: v.number(),
+      proposedAt: v.number(),
+      dueDate: v.number(),
+    }),
+  }),
+  handler: async (_ctx: ActionCtx, args) => {
+    const apiKey = process.env.TASK_API_KEY;
+    if (!apiKey) throw new Error("TASK_API_KEY 未配置");
+
+    const response = await fetch(`${TASK_API_BASE_URL}/api/tasks`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`拉取任务失败: ${response.status} ${response.statusText}`);
+    }
+
+    const payload = (await response.json()) as { tasks?: Array<any> };
+    const tasks = payload.tasks ?? [];
+
+    const weeklyTasks = tasks.filter((task) =>
+      inRange(getTaskDateByBasis(task, args.dateBasis), args.startDate, args.endDate)
+    );
+
+    const missingFieldCounts = {
+      proposer: weeklyTasks.filter((t) => !t.proposer).length,
+      clientContact: weeklyTasks.filter((t) => !t.clientContact).length,
+      description: weeklyTasks.filter((t) => !t.description).length,
+      proposedAt: weeklyTasks.filter((t) => !t.proposedAt).length,
+      dueDate: weeklyTasks.filter((t) => !t.dueDate).length,
+    };
+
+    const grouped = new Map<string, Array<any>>();
+    for (const task of weeklyTasks) {
+      const label = REPORT_TYPE_LABELS[task.taskType] ?? "其他事项";
+      const list = grouped.get(label) ?? [];
+      list.push(task);
+      grouped.set(label, list);
+    }
+
+    const featureSections: string[] = [];
+    let featureIndex = 1;
+
+    for (const [typeLabel, typeTasks] of grouped.entries()) {
+      const doneCount = typeTasks.filter((t) => t.status === "done").length;
+      const pendingCount = typeTasks.length - doneCount;
+      featureSections.push(
+        `${featureIndex}.    ${typeLabel}\n本周新增事项${typeTasks.length}条，已完成${doneCount}条，未完成${pendingCount}条。`
+      );
+
+      const platformGroups = new Map<string, Array<any>>();
+      for (const task of typeTasks) {
+        const platformLabel = PLATFORM_LABELS[task.subPlatform] ?? "未分类平台";
+        const list = platformGroups.get(platformLabel) ?? [];
+        list.push(task);
+        platformGroups.set(platformLabel, list);
+      }
+
+      let platformIndex = 1;
+      for (const [platformLabel, platformTasks] of platformGroups.entries()) {
+        featureSections.push(`(${platformIndex})    ${platformLabel}`);
+        let itemIndex = 1;
+        for (const task of platformTasks) {
+          const statusLabel =
+            task.status === "done"
+              ? "已完成"
+              : task.status === "in_progress"
+                ? "进行中"
+                : task.status === "backlog"
+                  ? "未排期"
+                  : "未开始";
+
+          featureSections.push(
+            `${itemIndex})    ${task.title}\n` +
+              `详细描述：${task.description ?? "待补充"}\n` +
+              `提出人：${task.proposer ?? "待补充"}      业务对接人：${task.clientContact ?? "待补充"}\n` +
+              `提出时间：${formatDateCN(task.proposedAt)}      计划完成时间：${formatDateCN(task.dueDate)}\n` +
+              `情况说明：当前状态为${statusLabel}。`
+          );
+          itemIndex += 1;
+        }
+        platformIndex += 1;
+      }
+
+      featureIndex += 1;
+    }
+
+    const unfinishedTasks = weeklyTasks.filter((task) => task.status !== "done");
+    const nextWeekPlans = unfinishedTasks.slice(0, 8).map((task, idx) => {
+      const platformLabel = PLATFORM_LABELS[task.subPlatform] ?? "未分类平台";
+      return `${idx + 1}.    [${platformLabel}] ${task.title}`;
+    });
+
+    const routineInspection = [
+      "(1)    门户：按周巡检",
+      "(2)    核心业务平台：按周巡检",
+      "(3)    数据目录平台：按周巡检",
+      "(4)    数据交换平台：按周巡检",
+      "(5)    数据共享平台：每日巡检",
+    ];
+
+    const periodText = `${formatDateCN(args.startDate)}-${formatDateCN(args.endDate)}`;
+
+    const report =
+      `平台运维周报\n` +
+      `项目名称：丽水市公共数据平台运维服务项目\n` +
+      `编    号：PTYW-ZB-${new Date(args.endDate)
+        .toISOString()
+        .slice(0, 10)
+        .replace(/-/g, "")}\n` +
+      `单位名称：中国电信股份有限公司丽水分公司    日期：${periodText}\n` +
+      `运维工作小组成员：陈叶春、毛炜勇、吴津津、王翀、方舟琼、周晨、卓江南\n` +
+      `一、本周工作内容：\n` +
+      (featureSections.length > 0 ? `${featureSections.join("\n")}\n` : "本周暂无任务数据。\n") +
+      `6.    例行巡检\n` +
+      `${routineInspection.join("\n")}\n` +
+      `7.    文档管理\n` +
+      `(1)    本周周报由系统自动生成初稿并人工复核。\n` +
+      `8.    其他\n` +
+      `(1)    暂无。\n` +
+      `二、下周工作计划：\n` +
+      (nextWeekPlans.length > 0
+        ? `${nextWeekPlans.join("\n")}\n`
+        : `1.    暂无未完成事项，按计划开展例行巡检与优化。\n`) +
+      `三、待协调事项\n` +
+      `暂无\n\n` +
+      `【统计口径】按 ${args.dateBasis} 统计。\n` +
+      `【数据完整度提示】提出人缺失${missingFieldCounts.proposer}条，业务对接人缺失${missingFieldCounts.clientContact}条，描述缺失${missingFieldCounts.description}条，提出时间缺失${missingFieldCounts.proposedAt}条，计划完成时间缺失${missingFieldCounts.dueDate}条。`;
+
+    return {
+      report,
+      totalTasks: tasks.length,
+      weeklyTasks: weeklyTasks.length,
+      missingFieldCounts,
+    };
   },
 });

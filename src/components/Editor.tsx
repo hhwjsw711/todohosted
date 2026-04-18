@@ -17,15 +17,15 @@ import { useState } from "react";
 import { Id } from "../../convex/_generated/dataModel";
 import { useRoom, useSelf, useOthers } from "@liveblocks/react";
 
-export function Editor() {
+export function Editor({ pageId }: { pageId?: Id<"pages"> }) {
   const [expandedDocs, setExpandedDocs] = useState<Record<string, boolean>>({});
   const [editingDocId, setEditingDocId] = useState<Id<"pageDocs"> | null>(null);
   const [localTitle, setLocalTitle] = useState("");
 
   const defaultPage = useQuery(api.pages.getPageBySlug, { slug: "default" });
-  const docs = defaultPage
-    ? useQuery(api.docs.getPageDocs, { pageId: defaultPage._id })
-    : undefined;
+  const activePageId = pageId ?? defaultPage?._id;
+
+  const docs = activePageId ? useQuery(api.docs.getPageDocs, { pageId: activePageId }) : undefined;
   const createDoc = useMutation(api.docs.createDoc);
   const updateDoc = useMutation(api.docs.updateDoc);
   const deleteDoc = useMutation(api.docs.deleteDoc);
@@ -58,7 +58,7 @@ export function Editor() {
   });
 
   const handleSave = async () => {
-    if (!editor || !defaultPage) return;
+    if (!editor || !activePageId) return;
     const content = editor.getHTML();
     const titleToSave = (currentTitle || "无标题文档") as string;
 
@@ -71,7 +71,7 @@ export function Editor() {
       setEditingDocId(null);
     } else {
       await createDoc({
-        pageId: defaultPage._id,
+        pageId: activePageId,
         title: titleToSave,
         content,
       });
@@ -108,13 +108,11 @@ export function Editor() {
     room.updatePresence({ title: newTitle });
   };
 
-  // Handle loading states
   if (defaultPage === undefined || docs === undefined) {
     return <div className="p-4">加载中...</div>;
   }
 
-  // Handle errors
-  if (defaultPage === null) {
+  if (!activePageId) {
     return <div className="p-4 text-red-500">加载页面出错</div>;
   }
 
