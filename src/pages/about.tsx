@@ -43,7 +43,7 @@ const AboutPage = () => {
               />
             </a>
             <a
-              href="https://convex.link/chatsynclinks"
+              href="/"
               target="_blank"
               rel="noopener noreferrer"
               className="text-sm md:text-xl">
@@ -53,27 +53,6 @@ const AboutPage = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-6">
-            <a
-              href="https://convex.link/chatsynclinks"
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`${iconClasses} hover:opacity-80 transition-opacity`}>
-              Convex
-            </a>
-            <a
-              href="https://docs.convex.dev"
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`${iconClasses} hover:opacity-80 transition-opacity`}>
-              文档
-            </a>
-            <a
-              href="https://stack.convex.dev/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`${iconClasses} hover:opacity-80 transition-opacity`}>
-              博客
-            </a>
             <button
               onClick={() => setIsDark(!isDark)}
               className={`${iconClasses} hover:opacity-80 transition-opacity`}>
@@ -98,25 +77,11 @@ const AboutPage = () => {
           <div className="md:hidden absolute top-full left-0 right-0 bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800 py-4 px-4 z-50">
             <div className="flex flex-col gap-4">
               <a
-                href="https://convex.link/chatsynclinks"
+                href="https://task.isllm.com"
                 target="_blank"
                 rel="noopener noreferrer"
                 className={`${iconClasses} hover:opacity-80 transition-opacity`}>
-                Convex
-              </a>
-              <a
-                href="https://docs.convex.dev"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`${iconClasses} hover:opacity-80 transition-opacity`}>
-                文档
-              </a>
-              <a
-                href="https://stack.convex.dev/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`${iconClasses} hover:opacity-80 transition-opacity`}>
-                博客
+                任务流
               </a>
             </div>
           </div>

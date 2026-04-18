@@ -7,10 +7,10 @@ import { Menu, Sun, Moon, X } from "lucide-react";
 import { Id } from "../../convex/_generated/dataModel";
 
 const AdminDashboard = () => {
-  // User and auth hooks
+  // 用户和认证钩子
   const { user } = useUser();
 
-  // State hooks
+  // 状态钩子
   const [newPageSlug, setNewPageSlug] = useState("");
   const [newPageTitle, setNewPageTitle] = useState("");
   const [expandedPages, setExpandedPages] = useState<Record<string, boolean>>({});
@@ -26,7 +26,7 @@ const AdminDashboard = () => {
   });
   const [showMobileMenu, setShowMobileMenu] = useState(false);
 
-  // Query hooks
+  // 查询钩子
   const pages = useQuery(api.pages.getPages) ?? [];
   const defaultPage = useQuery(api.pages.getPageBySlug, { slug: "default" });
   const messages = defaultPage
@@ -37,7 +37,7 @@ const AdminDashboard = () => {
   const pageTodos = useQuery(api.todos.getAll) ?? [];
   const pageNotes = useQuery(api.pageNotes.getAllNotes) ?? [];
 
-  // Mutation hooks
+  // 变更钩子
   const createPage = useMutation(api.pages.createPage);
   const deletePage = useMutation(api.pages.deletePage);
   const togglePageStatus = useMutation(api.pages.togglePageStatus);
@@ -53,7 +53,7 @@ const AdminDashboard = () => {
   const toggleLike = useMutation(api.pageMessages.toggleLike);
   const getMessagesForCsv = useMutation(api.pageMessages.getMessagesForCsv);
 
-  // Effect hooks
+  // 效果钩子
   React.useEffect(() => {
     if (typeof window !== "undefined") {
       localStorage.setItem("adminDarkMode", JSON.stringify(isDark));
@@ -65,7 +65,7 @@ const AdminDashboard = () => {
     }
   }, [isDark]);
 
-  // If no user or not admin, show 404
+  // 如果没有用户或不是管理员，显示404
   if (!user || user.publicMetadata?.role !== "admin") return <NotFound />;
 
   const bgClasses = isDark ? "bg-zinc-900" : "bg-[#F5F5F4]";
@@ -89,12 +89,12 @@ const AdminDashboard = () => {
         await sendPageMessage({
           pageId,
           text: `欢迎来到 ${newPageTitle.trim()}!`,
-          sender: "System",
+          sender: "系统",
         });
         await sendPageMessage({
           pageId,
           text: '开始聊天，输入 @ai 询问AI，输入 remind me 设置提醒，或输入 note: 创建笔记。',
-          sender: "System",
+          sender: "系统",
         });
         window.location.href = `/${newPageSlug.trim()}`;
       }
@@ -109,7 +109,7 @@ const AdminDashboard = () => {
     if (!pageMessages) return;
 
     const csvContent = [
-      ["Timestamp", "Sender", "Message", "Likes"].join(","),
+      ["时间", "发送者", "消息", "点赞数"].join(","),
       ...pageMessages.map((msg) =>
         [
           new Date(msg.timestamp).toLocaleString(),

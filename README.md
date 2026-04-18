@@ -109,7 +109,7 @@
   - 点击滚动到消息
   - 桌面和移动端搜索
   - 清除搜索功能
-  - 搜索匹配的视觉反��
+  - 搜索匹配的视觉反馈
   - 基于向量的语义搜索
   - 按发送者筛选搜索
 
@@ -204,5 +204,3 @@
 ## 许可证
 
 本项目基于MIT许可证授权。
-
-[![Netlify Status](https://api.netlify.com/api/v1/badges/3ed77b58-4c94-4674-9443-f2ed21fe9669/deploy-status)](https://app.netlify.com/sites/insyc/deploys)

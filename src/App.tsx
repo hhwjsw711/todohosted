@@ -242,7 +242,7 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedMessageIds, setSelectedMessageIds] = useState<Id<"pageMessages">[]>([]);
   const [hasUserInteracted, setHasUserInteracted] = useState(false);
-  const [username, setUsername] = useState("设置用户名");
+  const [username, setUsername] = useState("匿名用户");
   const [isEditingUsername, setIsEditingUsername] = useState(false);
   const [tempUsername, setTempUsername] = useState("");
   const [isCreatingNote, setIsCreatingNote] = useState(false);
@@ -343,7 +343,7 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
         await sendMessage({ text: newMessage.trim(), sender: username, pageId });
         await addTodo({ text: reminderText, pageId });
         await sendMessage({
-          text: `✅ 已将 "${reminderText}" 添加到您的待办事项!`,
+          text: `✅ 已将 "${reminderText}" 添加为待办事项!`,
           sender: "系统",
           pageId,
         });
@@ -809,7 +809,7 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
                           setShowWarning(true);
                         }
                       }}
-                      placeholder="发送消息 或 @ai 或 remind me 或 note:..."
+                      placeholder="发送消息，或输入 @ai 问AI、remind me 设置提醒、note: 创建笔记..."
                       className={`bg-transparent flex-1 outline-none ${textClasses} placeholder-zinc-500`}
                     />
                     <button
