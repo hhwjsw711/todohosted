@@ -549,9 +549,7 @@ export const generateWeeklyReport = action({
           }).join("\n") + "\n"
         : "暂无未完成事项，按计划开展例行巡检与优化。\n") +
       `三、待协调事项\n` +
-      `暂无\n\n` +
-      `【统计口径】包含本周新开始、截止及进行中的任务。\n` +
-      `【数据完整度提示】提出人缺失${missingFieldCounts.proposer}条，业务对接人缺失${missingFieldCounts.clientContact}条，描述缺失${missingFieldCounts.description}条，提出时间缺失${missingFieldCounts.proposedAt}条，计划完成时间缺失${missingFieldCounts.dueDate}条。`;
+      `暂无\n`;
 
     return {
       report,

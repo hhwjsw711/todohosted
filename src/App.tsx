@@ -259,6 +259,7 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
   const [weeklyEndDate, setWeeklyEndDate] = useState("");
   const [weeklyReportDraft, setWeeklyReportDraft] = useState("");
   const [isGeneratingWeeklyReport, setIsGeneratingWeeklyReport] = useState(false);
+  const [weeklyReportPreviewMode, setWeeklyReportPreviewMode] = useState(false);
   const [weeklyReportSummary, setWeeklyReportSummary] = useState<{
     totalTasks: number;
     weeklyTasks: number;
@@ -531,16 +532,105 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
     }
   };
 
+  const parseWeeklyReport = (text: string) => {
+    const lines = text.split("\n");
+    let title = "平台运维周报";
+    let projectName = "丽水市公共数据平台运维服务项目";
+    let code = "";
+    let unitName = "";
+    let dateRange = "";
+    let teamMembers = "";
+    const contentLines: string[] = [];
+    let inContent = false;
+
+    for (const line of lines) {
+      if (line.startsWith("平台运维周报")) {
+        title = line.trim() || title;
+      } else if (line.startsWith("项目名称：")) {
+        projectName = line.replace("项目名称：", "").trim();
+      } else if (line.startsWith("编") && line.includes("号：")) {
+        code = line.replace(/编\s+号：/, "").trim();
+      } else if (line.startsWith("单位名称：")) {
+        const dateMatch = line.match(/单位名称：(.+?)\s+日期：(.+)/);
+        if (dateMatch) {
+          unitName = dateMatch[1].trim();
+          dateRange = dateMatch[2].trim();
+        }
+      } else if (line.startsWith("日期：") && !dateRange) {
+        dateRange = line.replace("日期：", "").trim();
+      } else if (line.startsWith("运维工作小组成员：")) {
+        teamMembers = line.replace("运维工作小组成员：", "").trim();
+      } else if (
+        line.startsWith("一、本周工作内容：") ||
+        line.startsWith("二、下周工作计划：") ||
+        line.startsWith("三、待协调事项")
+      ) {
+        inContent = true;
+        contentLines.push(line);
+      } else if (inContent) {
+        contentLines.push(line);
+      }
+    }
+
+    return { title, projectName, code, unitName, dateRange, teamMembers, contentLines };
+  };
+
+  const renderWeeklyReportContent = (text: string) => {
+    const { title, projectName, code, unitName, dateRange, teamMembers, contentLines } = parseWeeklyReport(text);
+
+    return `<p class="wr-title">${title}</p>
+<p class="wr-info">项目名称：${projectName}</p>
+<p class="wr-info">编&nbsp;&nbsp;号：${code}</p>
+<table class="wr-table">
+  <tr>
+    <td style="width:60%">单位名称：${unitName}</td>
+    <td style="width:40%">日期：${dateRange}</td>
+  </tr>
+  <tr>
+    <td colspan="2">运维工作小组成员：${teamMembers}</td>
+  </tr>
+  <tr>
+    <td colspan="2">
+${contentLines.map((line) => {
+  if (line.startsWith("一、本周工作内容：") || line.startsWith("二、下周工作计划：") || line.startsWith("三、待协调事项")) {
+    return `<p class="wr-section">${line}</p>`;
+  }
+  return `<p>${line || "&nbsp;"}</p>`;
+}).join("\n")}
+    </td>
+  </tr>
+</table>`;
+  };
+
+  const renderWeeklyReportHtml = (text: string) => {
+    const content = renderWeeklyReportContent(text);
+    return `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+body { font-family: "宋体", SimSun, serif; font-size: 12pt; }
+.wr-title { text-align: center; font-size: 18pt; font-weight: bold; margin: 15px 0 10px 0; }
+.wr-info { margin: 6px 0; font-size: 11pt; }
+.wr-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+.wr-table td { border: 1px solid #000; padding: 6px 10px; font-size: 11pt; }
+.wr-content { line-height: 1.6; }
+.wr-section { font-weight: bold; margin: 12px 0 6px 0; }
+</style>
+</head>
+<body>
+${content}
+</body>
+</html>`;
+  };
+
   const exportWeeklyReportAsWord = () => {
     if (!weeklyReportDraft.trim()) {
       alert("请先生成周报内容。");
       return;
     }
 
-    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"></head><body><pre>${weeklyReportDraft
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")}</pre></body></html>`;
+    const html = renderWeeklyReportHtml(weeklyReportDraft);
 
     const blob = new Blob(["\ufeff", html], {
       type: "application/msword",
@@ -873,6 +963,12 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
                   className="px-4 py-2 bg-zinc-100 text-black rounded border border-zinc-300 hover:bg-zinc-200 disabled:opacity-60 disabled:cursor-not-allowed">
                   导出Word
                 </button>
+                <button
+                  onClick={() => setWeeklyReportPreviewMode(!weeklyReportPreviewMode)}
+                  disabled={!weeklyReportDraft}
+                  className="px-4 py-2 bg-zinc-100 text-black rounded border border-zinc-300 hover:bg-zinc-200 disabled:opacity-60 disabled:cursor-not-allowed">
+                  {weeklyReportPreviewMode === true ? "编辑" : "预览"}
+                </button>
               </div>
 
               {weeklyReportSummary && (
@@ -883,13 +979,29 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
                 </div>
               )}
 
-              <textarea
-                value={weeklyReportDraft}
-                onChange={(e) => setWeeklyReportDraft(e.target.value)}
-                placeholder="点击上方“生成周报”后，这里会出现可编辑周报草稿。"
-                rows={16}
-                className={`w-full rounded border p-3 text-sm leading-6 ${isDark ? "bg-zinc-900 border-zinc-700 text-zinc-100" : "bg-white border-zinc-300 text-zinc-900"}`}
-              />
+              {weeklyReportPreviewMode ? (
+                <div
+                  className={`w-full rounded border p-4 text-sm leading-6 overflow-auto ${isDark ? "bg-zinc-900 border-zinc-700 text-zinc-100" : "bg-white border-zinc-300 text-zinc-900"}`}
+                  style={{ fontFamily: '"宋体", SimSun, serif' }}>
+                  <style>{`
+                    .wr-title { text-align: center; font-size: 18pt; font-weight: bold; margin: 15px 0 10px 0; }
+                    .wr-info { margin: 6px 0; font-size: 11pt; }
+                    .wr-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+                    .wr-table td { border: 1px solid #000; padding: 6px 10px; font-size: 11pt; }
+                    .wr-content { line-height: 1.6; }
+                    .wr-section { font-weight: bold; margin: 12px 0 6px 0; }
+                  `}</style>
+                  <div dangerouslySetInnerHTML={{ __html: renderWeeklyReportContent(weeklyReportDraft) }} />
+                </div>
+              ) : (
+                <textarea
+                  value={weeklyReportDraft}
+                  onChange={(e) => setWeeklyReportDraft(e.target.value)}
+                  placeholder={"点击上方\"生成周报\"后，这里会出现可编辑周报草稿。"}
+                  rows={16}
+                  className={`w-full rounded border p-3 text-sm leading-6 ${isDark ? "bg-zinc-900 border-zinc-700 text-zinc-100" : "bg-white border-zinc-300 text-zinc-900"}`}
+                />
+              )}
             </div>
           </div>
 
