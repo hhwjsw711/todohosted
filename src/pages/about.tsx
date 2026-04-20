@@ -35,13 +35,6 @@ const AboutPage = () => {
           {/* Logo and Title */}
           <h1
             className={`${iconClasses} text-xl font-normal flex flex-col md:flex-row items-center gap-2 flex-1 justify-center md:justify-start`}>
-            <a href="/" target="_blank" rel="noopener noreferrer" className="md:flex">
-              <img
-                src={isDark ? "/convex-logo-white.svg" : "/convex-logo-black.svg"}
-                alt="Convex Logo"
-                className="h-4"
-              />
-            </a>
             <a
               href="/"
               target="_blank"

@@ -9,16 +9,16 @@ const TASK_API_BASE_URL =
 
 const REPORT_TYPE_LABELS: Record<string, string> = {
   feature_optimization: "功能优化",
-  data_maintenance: "数据维护与统计分析服务",
-  security_risk: "安全风险处理",
-  security_config: "安全风险处理",
-  bug_handling: "BUG处理",
+  bug_handling: "Bug处置",
   incident_handling: "故障处理",
-  documentation: "文档管理",
   server_config: "服务器配置",
   permission_config: "权限配置",
+  security_risk: "安全风险",
+  security_config: "安全配置",
   third_party_integration: "三方对接",
   consultation: "咨询协助",
+  data_maintenance: "数据维护统计",
+  documentation: "文档编写",
 };
 
 const PLATFORM_LABELS: Record<string, string> = {
@@ -45,20 +45,7 @@ const PLATFORM_LABELS: Record<string, string> = {
 function formatDateCN(timestamp?: number): string {
   if (!timestamp) return "未填写";
   const date = new Date(timestamp);
-  return `${date.getFullYear()}.${date.getMonth() + 1}.${date.getDate()}`;
-}
-
-function getTaskDateByBasis(
-  task: {
-    respondedAt?: number;
-    proposedAt?: number;
-    dueDate?: number;
-    updatedAt?: number;
-    createdAt?: number;
-  },
-  dateBasis: "respondedAt" | "proposedAt" | "dueDate" | "updatedAt" | "createdAt"
-): number | null {
-  return task[dateBasis] ?? null;
+  return `${date.getUTCFullYear()}.${date.getUTCMonth() + 1}.${date.getUTCDate()}`;
 }
 
 function inRange(timestamp: number | null, startDate: number, endDate: number): boolean {
@@ -439,13 +426,6 @@ export const generateWeeklyReport = action({
   args: {
     startDate: v.number(),
     endDate: v.number(),
-    dateBasis: v.union(
-      v.literal("respondedAt"),
-      v.literal("proposedAt"),
-      v.literal("dueDate"),
-      v.literal("updatedAt"),
-      v.literal("createdAt")
-    ),
   },
   returns: v.object({
     report: v.string(),
@@ -477,8 +457,11 @@ export const generateWeeklyReport = action({
     const payload = (await response.json()) as { tasks?: Array<any> };
     const tasks = payload.tasks ?? [];
 
-    const weeklyTasks = tasks.filter((task) =>
-      inRange(getTaskDateByBasis(task, args.dateBasis), args.startDate, args.endDate)
+    const weeklyTasks = tasks.filter(
+      (task) =>
+        task.status === "in_progress" ||
+        inRange(task.proposedAt, args.startDate, args.endDate) ||
+        inRange(task.dueDate, args.startDate, args.endDate)
     );
 
     const missingFieldCounts = {
@@ -529,11 +512,13 @@ export const generateWeeklyReport = action({
                   ? "未排期"
                   : "未开始";
 
+          const dateLabel = task.status === "done" ? "完成时间" : "计划完成时间";
+          const dateValue = formatDateCN(task.dueDate);
           featureSections.push(
             `${itemIndex})    ${task.title}\n` +
               `详细描述：${task.description ?? "待补充"}\n` +
               `提出人：${task.proposer ?? "待补充"}      业务对接人：${task.clientContact ?? "待补充"}\n` +
-              `提出时间：${formatDateCN(task.proposedAt)}      计划完成时间：${formatDateCN(task.dueDate)}\n` +
+              `提出时间：${formatDateCN(task.proposedAt)}      ${dateLabel}：${dateValue}\n` +
               `情况说明：当前状态为${statusLabel}。`
           );
           itemIndex += 1;
@@ -545,45 +530,27 @@ export const generateWeeklyReport = action({
     }
 
     const unfinishedTasks = weeklyTasks.filter((task) => task.status !== "done");
-    const nextWeekPlans = unfinishedTasks.slice(0, 8).map((task, idx) => {
-      const platformLabel = PLATFORM_LABELS[task.subPlatform] ?? "未分类平台";
-      return `${idx + 1}.    [${platformLabel}] ${task.title}`;
-    });
-
-    const routineInspection = [
-      "(1)    门户：按周巡检",
-      "(2)    核心业务平台：按周巡检",
-      "(3)    数据目录平台：按周巡检",
-      "(4)    数据交换平台：按周巡检",
-      "(5)    数据共享平台：每日巡检",
-    ];
-
     const periodText = `${formatDateCN(args.startDate)}-${formatDateCN(args.endDate)}`;
 
     const report =
       `平台运维周报\n` +
       `项目名称：丽水市公共数据平台运维服务项目\n` +
-      `编    号：PTYW-ZB-${new Date(args.endDate)
-        .toISOString()
-        .slice(0, 10)
-        .replace(/-/g, "")}\n` +
+      `编    号：PTYW-ZB-${new Date(args.endDate).toISOString().slice(0, 10).replace(/-/g, "")}\n` +
       `单位名称：中国电信股份有限公司丽水分公司    日期：${periodText}\n` +
-      `运维工作小组成员：陈叶春、毛炜勇、吴津津、王翀、方舟琼、周晨、卓江南\n` +
+`运维工作小组成员：陈叶春、毛炜勇、吴津津、王翀、方舟琼、周晨、卓江南\n` +
       `一、本周工作内容：\n` +
       (featureSections.length > 0 ? `${featureSections.join("\n")}\n` : "本周暂无任务数据。\n") +
-      `6.    例行巡检\n` +
-      `${routineInspection.join("\n")}\n` +
-      `7.    文档管理\n` +
-      `(1)    本周周报由系统自动生成初稿并人工复核。\n` +
-      `8.    其他\n` +
-      `(1)    暂无。\n` +
       `二、下周工作计划：\n` +
-      (nextWeekPlans.length > 0
-        ? `${nextWeekPlans.join("\n")}\n`
-        : `1.    暂无未完成事项，按计划开展例行巡检与优化。\n`) +
+      (unfinishedTasks.length > 0
+        ? unfinishedTasks.slice(0, 10).map((task, idx) => {
+            const platformLabel = PLATFORM_LABELS[task.subPlatform] ?? "未分类平台";
+            const statusLabel = task.status === "in_progress" ? "进行中" : "待处理";
+            return `${idx + 1}.    [${platformLabel}] ${task.title}（${statusLabel}）`;
+          }).join("\n") + "\n"
+        : "暂无未完成事项，按计划开展例行巡检与优化。\n") +
       `三、待协调事项\n` +
       `暂无\n\n` +
-      `【统计口径】按 ${args.dateBasis} 统计。\n` +
+      `【统计口径】包含本周新开始、截止及进行中的任务。\n` +
       `【数据完整度提示】提出人缺失${missingFieldCounts.proposer}条，业务对接人缺失${missingFieldCounts.clientContact}条，描述缺失${missingFieldCounts.description}条，提出时间缺失${missingFieldCounts.proposedAt}条，计划完成时间缺失${missingFieldCounts.dueDate}条。`;
 
     return {

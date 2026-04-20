@@ -270,9 +270,6 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
       dueDate: number;
     };
   } | null>(null);
-  const [weeklyDateBasis, setWeeklyDateBasis] = useState<
-    "respondedAt" | "proposedAt" | "dueDate" | "updatedAt" | "createdAt"
-  >("respondedAt");
 
   // Ref hooks
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -472,8 +469,8 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
       return;
     }
 
-    const startDate = new Date(`${weeklyStartDate}T00:00:00`).getTime();
-    const endDate = new Date(`${weeklyEndDate}T23:59:59`).getTime();
+    const startDate = new Date(`${weeklyStartDate}T00:00:00Z`).getTime();
+    const endDate = new Date(`${weeklyEndDate}T23:59:59Z`).getTime();
 
     if (startDate > endDate) {
       alert("开始日期不能晚于结束日期。");
@@ -486,7 +483,6 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
       const result = await generateWeeklyReport({
         startDate,
         endDate,
-        dateBasis: weeklyDateBasis,
       });
       setWeeklyReportDraft(result.report);
       setWeeklyReportSummary({
@@ -669,13 +665,6 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
           {/* Logo and Title */}
           <h1
             className={`${isDark ? "text-white" : iconClasses} text-xl font-normal flex flex-col md:flex-row items-center gap-2 flex-1 justify-center md:justify-start`}>
-            <a href="/" target="_blank" rel="noopener noreferrer" className="md:flex">
-              <img
-                src={isDark ? "/convex-logo-white.svg" : "/convex-logo-black.svg"}
-                alt="Convex Logo"
-                className="h-4"
-              />
-            </a>
             AI聊天与待办同步应用
           </h1>
 
@@ -859,28 +848,6 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
                     onChange={(e) => setWeeklyEndDate(e.target.value)}
                     className={`w-full rounded border px-3 py-2 ${isDark ? "bg-zinc-800 border-zinc-700 text-zinc-100" : "bg-white border-zinc-300 text-zinc-900"}`}
                   />
-                </div>
-                <div className="flex-1">
-                  <label className={`block text-sm mb-1 ${mutedTextClasses}`}>统计口径</label>
-                  <select
-                    value={weeklyDateBasis}
-                    onChange={(e) =>
-                      setWeeklyDateBasis(
-                        e.target.value as
-                          | "respondedAt"
-                          | "proposedAt"
-                          | "dueDate"
-                          | "updatedAt"
-                          | "createdAt"
-                      )
-                    }
-                    className={`w-full rounded border px-3 py-2 ${isDark ? "bg-zinc-800 border-zinc-700 text-zinc-100" : "bg-white border-zinc-300 text-zinc-900"}`}>
-                    <option value="respondedAt">按响应时间</option>
-                    <option value="proposedAt">按提出时间</option>
-                    <option value="dueDate">按计划完成时间</option>
-                    <option value="updatedAt">按更新时间</option>
-                    <option value="createdAt">按创建时间</option>
-                  </select>
                 </div>
                 <button
                   onClick={handleGenerateWeeklyReport}

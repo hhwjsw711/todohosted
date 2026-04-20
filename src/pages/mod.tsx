@@ -135,13 +135,6 @@ const AdminDashboard = () => {
       <header className={`relative w-full py-6 px-4 ${cardClasses}`}>
         <div className="max-w-7xl mx-auto flex justify-between items-center font-['Inter']">
           <h1 className="text-xl font-normal flex flex-col md:flex-row items-center gap-2">
-            <a href="/" target="_blank" rel="noopener noreferrer">
-              <img
-                src={isDark ? "/convex-logo-white.svg" : "/convex-logo-black.svg"}
-                alt="Convex Logo"
-                className="h-4"
-              />
-            </a>
             <a href="/" className="text-sm md:text-xl">
               AI聊天与待办同步应用
             </a>
