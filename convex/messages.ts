@@ -511,15 +511,30 @@ export const generateWeeklyReport = action({
                 : task.status === "backlog"
                   ? "未排期"
                   : "未开始";
+          const progressLabel = task.status === "in_progress" && task.progress ? `（${task.progress}%）` : "";
 
           const dateLabel = task.status === "done" ? "完成时间" : "计划完成时间";
           const dateValue = formatDateCN(task.dueDate);
+          const DOC_TYPE_LABELS: Record<string, string> = {
+            demand_form: "需求单",
+            update_form: "更新单",
+            bug_report: "Bug分析报告",
+            incident_report: "故障分析报告",
+            security_confirm: "安全风险处置确认单",
+            permission_form: "权限申请表",
+            cloud_resource_form: "云资源申请表",
+          };
+          const docLinks = task.documentLinks
+            ? task.documentLinks
+                .map((doc: any) => `关联${DOC_TYPE_LABELS[doc.docType] || doc.docType}：${doc.docNumber}`)
+                .join("\n")
+            : "";
           featureSections.push(
             `${itemIndex})    ${task.title}\n` +
               `详细描述：${task.description ?? "待补充"}\n` +
               `提出人：${task.proposer ?? "待补充"}      业务对接人：${task.clientContact ?? "待补充"}\n` +
-              `提出时间：${formatDateCN(task.proposedAt)}      ${dateLabel}：${dateValue}\n` +
-              `情况说明：当前状态为${statusLabel}。`
+              `提出时间：${formatDateCN(task.proposedAt)}      ${dateLabel}：${dateValue}${docLinks ? `\n${docLinks}` : ""}\n` +
+              `情况说明：当前状态为${statusLabel}${progressLabel}。`
           );
           itemIndex += 1;
         }

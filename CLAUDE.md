@@ -65,18 +65,30 @@ Key practical distinction:
 - `messages` APIs still exist for AI orchestration/search and compatibility paths.
 
 ### Convex module responsibilities
-- `convex/pages.ts`: page lifecycle (create, list, slug lookup, active toggle, delete page and associated page data)
-- `convex/pageMessages.ts`: per-page chat CRUD, likes, bulk delete, CSV fetch support
-- `convex/todos.ts` and `convex/pageTodos.ts`: overlapping todo handlers for page-scoped todos (the app currently calls `api.todos.*`)
-- `convex/pageNotes.ts`: per-page notes CRUD + bulk delete/all-notes listing for admin
-- `convex/docs.ts`: per-page document CRUD for editor snapshots
-- `convex/messages.ts`: legacy/global messages, search, vector backfill, and AI streaming action (`askAI` -> `streamResponse`)
+- `convex/pages.ts`: page lifecycle (create, list, slug lookup, active toggle, delete page and associated page data including messages, todos, notes, and docs)
+- `convex/pageMessages.ts`: per-page chat CRUD (`send`, `getMessages`, `toggleLike`, `patchMessage`), likes, bulk delete (`deleteAllMessages`), CSV fetch support (`getMessagesForCsv`)
+- `convex/todos.ts` and `convex/pageTodos.ts`: overlapping todo handlers for page-scoped todos (the app currently calls `api.todos.*`), supports upvote/downvote voting
+- `convex/pageNotes.ts`: per-page notes CRUD (`getNotes`, `createNote`, `updateNote`, `deleteNote`) + bulk delete/all-notes listing for admin
+- `convex/docs.ts`: page document CRUD (`getPageDocs`, `createDoc`, `updateDoc`, `deleteDoc`, `deleteAllPageDocs`) for editor snapshots
+- `convex/prosemirror.ts`: exports ProsemirrorSync sync API (`getSnapshot`, `submitSnapshot`, `latestVersion`, `getSteps`, `submitSteps`)
+- `convex/messages.ts`: legacy/global messages, search, vector backfill, and AI streaming action (`askAI` -> `streamResponse`), and weekly report generation action (`generateWeeklyReport`)
+  - `generateWeeklyReport` fetches tasks from external API, groups by task type and platform, generates formatted weekly report
+  - Report includes: task proposer, client contact, dates, document links (docType + docNumber), and progress percentage for in-progress tasks
 - `convex/cleanup.ts`: internal mutation that clears page/global content and reseeds system messages
 - `convex/crons.ts`: schedules cleanup every 5 hours
 - `convex/convex.config.ts`: registers `@convex-dev/prosemirror-sync` component
 
+### Weekly report generation
+Frontend `MainApp` provides weekly report generation UI:
+- Select date range (start/end date)
+- Click "生成周报" to call `api.messages.generateWeeklyReport` action
+- Report pulls tasks from external task API (`TASK_API_BASE_URL`), filters by date range
+- Output format per task:
+  - Task title, description, proposer, client contact, proposed time, due time
+  - Document links: `关联需求单：HXYW-REQ-xxx`, `关联更新单：xxx` (multiple docs on separate lines)
+  - For in-progress tasks: progress percentage like `（60%）`
+
 ### AI and command-like chat behavior
-In `src/App.tsx` message submit flow:
 - `@ai ...` sends user message, then calls `api.messages.askAI`; Convex action streams response into a `pageMessages` row via patch updates.
 - text containing `remind me` creates a todo (`api.todos.add`) and posts a system confirmation message.
 - text starting with `note:` creates a note (`api.pageNotes.createNote`) and posts a system confirmation message.
