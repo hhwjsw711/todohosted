@@ -817,6 +817,13 @@ ${content}
             </div>
 
             {/* Existing Navigation Items */}
+            <a
+              href="https://task.isllm.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`${iconClasses} hover:opacity-80 transition-opacity`}>
+              任务看板
+            </a>
             <button
               onClick={() => setShowFeaturesModal(true)}
               className={`${iconClasses} hover:opacity-80 transition-opacity`}>
@@ -897,6 +904,14 @@ ${content}
               )}
 
               {/* Navigation Links */}
+              <a
+                href="https://task.isllm.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setShowMobileMenu(false)}
+                className={`${iconClasses} hover:opacity-80 transition-opacity`}>
+                任务看板
+              </a>
               <button
                 onClick={() => {
                   setShowFeaturesModal(true);
