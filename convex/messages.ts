@@ -437,6 +437,7 @@ export const generateWeeklyReport = action({
       description: v.number(),
       proposedAt: v.number(),
       dueDate: v.number(),
+      notes: v.number(),
     }),
   }),
   handler: async (_ctx: ActionCtx, args) => {
@@ -457,12 +458,18 @@ export const generateWeeklyReport = action({
     const payload = (await response.json()) as { tasks?: Array<any> };
     const tasks = payload.tasks ?? [];
 
-    const weeklyTasks = tasks.filter(
-      (task) =>
-        task.status === "in_progress" ||
-        inRange(task.proposedAt, args.startDate, args.endDate) ||
-        inRange(task.dueDate, args.startDate, args.endDate)
-    );
+    const weeklyTasks = tasks.filter((task) => {
+      if (task.status === "todo" || task.status === "backlog" || task.status === "in_progress") {
+        return true;
+      }
+      if (task.status === "done") {
+        return (
+          inRange(task.startedAt, args.startDate, args.endDate) ||
+          inRange(task.completedAt, args.startDate, args.endDate)
+        );
+      }
+      return false;
+    });
 
     const missingFieldCounts = {
       proposer: weeklyTasks.filter((t) => !t.proposer).length,
@@ -470,6 +477,7 @@ export const generateWeeklyReport = action({
       description: weeklyTasks.filter((t) => !t.description).length,
       proposedAt: weeklyTasks.filter((t) => !t.proposedAt).length,
       dueDate: weeklyTasks.filter((t) => !t.dueDate).length,
+      notes: weeklyTasks.filter((t) => !t.notes || t.notes.length === 0).length,
     };
 
     const grouped = new Map<string, Array<any>>();
@@ -529,12 +537,15 @@ export const generateWeeklyReport = action({
                 .map((doc: any) => `关联${DOC_TYPE_LABELS[doc.docType] || doc.docType}：${doc.docNumber}`)
                 .join("\n")
             : "";
+          const notesContent = task.notes && task.notes.length > 0
+            ? task.notes.join("；")
+            : "";
           featureSections.push(
             `${itemIndex})    ${task.title}\n` +
               `详细描述：${task.description ?? "待补充"}\n` +
               `提出人：${task.proposer ?? "待补充"}      业务对接人：${task.clientContact ?? "待补充"}\n` +
-              `提出时间：${formatDateCN(task.proposedAt)}      ${dateLabel}：${dateValue}${docLinks ? `\n${docLinks}` : ""}\n` +
-              `情况说明：当前状态为${statusLabel}${progressLabel}。`
+              `提出时间：${formatDateCN(task.proposedAt)}      ${dateLabel}：${dateValue}${docLinks ? `\n${docLinks}` : ""}` +
+              (notesContent ? `\n情况说明：${notesContent}` : "")
           );
           itemIndex += 1;
         }

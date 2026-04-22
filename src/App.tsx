@@ -269,6 +269,7 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
       description: number;
       proposedAt: number;
       dueDate: number;
+      notes: number;
     };
   } | null>(null);
 
@@ -990,7 +991,8 @@ ${content}
                 <div className={`text-sm ${mutedTextClasses}`}>
                   本次共拉取任务 {weeklyReportSummary.totalTasks} 条，命中本周区间 {weeklyReportSummary.weeklyTasks} 条；
                   缺失字段：提出人 {weeklyReportSummary.missingFieldCounts.proposer}、业务对接人 {weeklyReportSummary.missingFieldCounts.clientContact}、
-                  描述 {weeklyReportSummary.missingFieldCounts.description}、提出时间 {weeklyReportSummary.missingFieldCounts.proposedAt}、计划完成时间 {weeklyReportSummary.missingFieldCounts.dueDate}。
+                  描述 {weeklyReportSummary.missingFieldCounts.description}、提出时间 {weeklyReportSummary.missingFieldCounts.proposedAt}、
+                  计划完成时间 {weeklyReportSummary.missingFieldCounts.dueDate}、情况说明 {weeklyReportSummary.missingFieldCounts.notes}。
                 </div>
               )}
 
