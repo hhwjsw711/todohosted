@@ -9,20 +9,25 @@ const TASK_API_BASE_URL =
 
 const REPORT_TYPE_LABELS: Record<string, string> = {
   feature_optimization: "功能优化",
-  bug_handling: "Bug处置",
-  incident_handling: "故障处理",
-  server_config: "服务器配置",
-  permission_config: "权限配置",
-  security_risk: "安全风险",
-  security_config: "安全配置",
-  third_party_integration: "三方对接",
+  bug_handling: "BUG处置",
+  incident_handling: "故障处置",
+  server_config: "服务器资源配置",
+  permission_config: "权限配置管理",
+  security_risk: "安全风险处理",
+  security_config: "安全配置管理",
+  third_party_integration: "和其他平台对接",
   consultation: "咨询协助",
-  data_maintenance: "数据维护统计",
-  documentation: "文档编写",
+  data_maintenance: "数据维护与统计",
+  data_migration: "数据迁移",
+  emergency_drill: "应急演练",
+  documentation: "文档管理",
+  data_security: "数据安全",
+  password_service_guarantee: "密码服务接口保障",
+  other: "其他",
 };
 
 const PLATFORM_LABELS: Record<string, string> = {
-  platform_wide: "整个平台",
+  platform_wide: "公共数据平台",
   ai_data_service: "AI数据服务",
   datav: "DataV",
   work_portal: "工作门户",
@@ -40,6 +45,7 @@ const PLATFORM_LABELS: Record<string, string> = {
   town_warehouse: "镇街数仓",
   topic_db: "专题库",
   resource_view: "资源视窗",
+  authorized_operation: "授权运营",
 };
 
 const DOC_TYPE_LABELS: Record<string, string> = {
