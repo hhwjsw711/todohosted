@@ -217,6 +217,7 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
   const askAIAction = useMutation(api.messages.askAI);
   const searchMessages = useAction(api.messages.searchMessages);
   const generateWeeklyReport = useAction(api.messages.generateWeeklyReport);
+  const exportAllTasksToExcel = useAction(api.messages.exportAllTasksToExcel);
   const createNote = useMutation(api.pageNotes.createNote);
   const updateNote = useMutation(api.pageNotes.updateNote);
   const deleteNote = useMutation(api.pageNotes.deleteNote);
@@ -530,6 +531,30 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
     } catch (error) {
       console.error("保存周报失败:", error);
       alert("保存失败，请稍后重试。");
+    }
+  };
+
+  const handleExportAllTasksToExcel = async () => {
+    setIsGeneratingWeeklyReport(true);
+    try {
+      const base64 = await exportAllTasksToExcel({});
+      const binary = atob(base64);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
+      }
+      const blob = new Blob([bytes], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `全量任务-${new Date().toISOString().slice(0, 10)}.xlsx`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("导出Excel失败:", error);
+      alert("导出失败，请检查任务接口配置或稍后重试。");
+    } finally {
+      setIsGeneratingWeeklyReport(false);
     }
   };
 
@@ -984,6 +1009,12 @@ ${content}
                   disabled={!weeklyReportDraft}
                   className="px-4 py-2 bg-zinc-100 text-black rounded border border-zinc-300 hover:bg-zinc-200 disabled:opacity-60 disabled:cursor-not-allowed">
                   {weeklyReportPreviewMode === true ? "编辑" : "预览"}
+                </button>
+                <button
+                  onClick={handleExportAllTasksToExcel}
+                  disabled={isGeneratingWeeklyReport}
+                  className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-60 disabled:cursor-not-allowed">
+                  {isGeneratingWeeklyReport ? "导出中..." : "导出Excel"}
                 </button>
               </div>
 

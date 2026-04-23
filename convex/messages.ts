@@ -1,8 +1,8 @@
 import { mutation, query, action, ActionCtx } from "./_generated/server";
 import { v } from "convex/values";
-import { Id, Doc } from "./_generated/dataModel";
-import { internal } from "./_generated/api";
+import { Id } from "./_generated/dataModel";
 import { api } from "./_generated/api";
+import * as XLSX from "xlsx";
 
 const TASK_API_BASE_URL =
   process.env.TASK_API_BASE_URL ?? "https://accurate-shepherd-453.convex.site";
@@ -41,6 +41,34 @@ const PLATFORM_LABELS: Record<string, string> = {
   topic_db: "专题库",
   resource_view: "资源视窗",
 };
+
+const DOC_TYPE_LABELS: Record<string, string> = {
+  demand_form: "需求单",
+  update_form: "更新单",
+  bug_report: "Bug分析报告",
+  incident_report: "故障分析报告",
+  security_confirm: "安全风险处置确认单",
+  permission_form: "权限申请表",
+  cloud_resource_form: "云资源申请表",
+};
+
+const STATUS_LABELS: Record<string, string> = {
+  backlog: "未排期",
+  todo: "未开始",
+  in_progress: "进行中",
+  done: "已完成",
+};
+
+function getDocLinks(
+  documentLinks: Array<{ docType: string; docNumber: string }> | undefined,
+  docType: string
+): string {
+  if (!documentLinks) return "";
+  return documentLinks
+    .filter((d) => d.docType === docType)
+    .map((d) => d.docNumber)
+    .join(";");
+}
 
 function formatDateCN(timestamp?: number): string {
   if (!timestamp) return "未填写";
@@ -309,7 +337,7 @@ export const streamResponse = action({
   },
   returns: v.null(),
   handler: async (ctx: ActionCtx, args) => {
-    const { messageId, prompt, pageId } = args;
+    const { messageId, prompt } = args;
     try {
       const response = await fetch("https://api.openai.com/v1/chat/completions", {
         method: "POST",
@@ -523,15 +551,6 @@ export const generateWeeklyReport = action({
 
           const dateLabel = task.status === "done" ? "完成时间" : "计划完成时间";
           const dateValue = formatDateCN(task.dueDate);
-          const DOC_TYPE_LABELS: Record<string, string> = {
-            demand_form: "需求单",
-            update_form: "更新单",
-            bug_report: "Bug分析报告",
-            incident_report: "故障分析报告",
-            security_confirm: "安全风险处置确认单",
-            permission_form: "权限申请表",
-            cloud_resource_form: "云资源申请表",
-          };
           const docLinks = task.documentLinks
             ? task.documentLinks
                 .map((doc: any) => `关联${DOC_TYPE_LABELS[doc.docType] || doc.docType}：${doc.docNumber}`)
@@ -583,5 +602,118 @@ export const generateWeeklyReport = action({
       weeklyTasks: weeklyTasks.length,
       missingFieldCounts,
     };
+  },
+});
+
+export const exportAllTasksToExcel = action({
+  args: {},
+  returns: v.string(),
+  handler: async (_ctx: ActionCtx): Promise<string> => {
+    const apiKey = process.env.TASK_API_KEY;
+    if (!apiKey) throw new Error("TASK_API_KEY 未配置");
+
+    const response = await fetch(`${TASK_API_BASE_URL}/api/tasks`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`拉取任务失败: ${response.status} ${response.statusText}`);
+    }
+
+    const payload = (await response.json()) as { tasks?: Array<any> };
+    const tasks = payload.tasks ?? [];
+
+    const rows = [
+      [
+        "标题",
+        "详细描述",
+        "任务类型",
+        "子平台",
+        "所属区县",
+        "状态",
+        "提出人",
+        "业务对接人",
+        "创建时间",
+        "提出时间",
+        "响应时间",
+        "计划完成时间",
+        "实际开始时间",
+        "实际完成时间",
+        "进度",
+        "关联需求单",
+        "关联更新单",
+        "关联Bug报告",
+        "关联故障报告",
+        "关联安全确认单",
+        "关联权限申请表",
+        "关联云资源申请表",
+        "情况说明",
+      ],
+    ];
+
+    const DISTRICT_LABELS: Record<string, string> = {
+      city_level: "市本级",
+      development_zone: "开发区",
+      liandu: "莲都区",
+      qingtian: "青田县",
+      jinyun: "缙云县",
+      suichang: "遂昌县",
+      songyang: "松阳县",
+      yunhe: "云和县",
+      qingtian_county: "庆元县",
+      jinglong: "景宁县",
+      longquan: "龙泉市",
+    };
+
+    for (const task of tasks) {
+      const demandLinks = getDocLinks(task.documentLinks, "demand_form");
+      const updateLinks = getDocLinks(task.documentLinks, "update_form");
+      const bugLinks = getDocLinks(task.documentLinks, "bug_report");
+      const incidentLinks = getDocLinks(task.documentLinks, "incident_report");
+      const securityLinks = getDocLinks(task.documentLinks, "security_confirm");
+      const permissionLinks = getDocLinks(task.documentLinks, "permission_form");
+      const cloudLinks = getDocLinks(task.documentLinks, "cloud_resource_form");
+      const notesContent = task.notes?.join(";") ?? "";
+
+      rows.push([
+        task.title ?? "",
+        task.description ?? "",
+        REPORT_TYPE_LABELS[task.taskType] ?? task.taskType ?? "",
+        PLATFORM_LABELS[task.subPlatform] ?? task.subPlatform ?? "",
+        DISTRICT_LABELS[task.district] ?? task.district ?? "",
+        STATUS_LABELS[task.status] ?? task.status ?? "",
+        task.proposer ?? "",
+        task.clientContact ?? "",
+        formatDateCN(task.createdAt),
+        formatDateCN(task.proposedAt),
+        formatDateCN(task.respondedAt),
+        formatDateCN(task.dueDate),
+        formatDateCN(task.startedAt),
+        formatDateCN(task.completedAt),
+        task.progress ? `${task.progress}%` : "",
+        demandLinks,
+        updateLinks,
+        bugLinks,
+        incidentLinks,
+        securityLinks,
+        permissionLinks,
+        cloudLinks,
+        notesContent,
+      ]);
+    }
+
+    const worksheet = XLSX.utils.aoa_to_sheet(rows);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "任务列表");
+    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+    const binary = new Uint8Array(excelBuffer);
+    let binaryString = "";
+    for (let i = 0; i < binary.byteLength; i++) {
+      binaryString += String.fromCharCode(binary[i]);
+    }
+    return btoa(binaryString);
   },
 });
