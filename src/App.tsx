@@ -645,12 +645,12 @@ ${contentLines.map((line) => {
 <![endif]-->
 <style>
 body { font-family: "宋体", SimSun, serif; font-size: 12pt; }
-p { margin: 0; padding: 0; }
+p { margin: 0; padding: 0; line-height: 18pt; }
 table { border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
-td { border: 1px solid #000; padding: 2px 6px; font-size: 11pt; }
-.wr-title { text-align: center; font-size: 18pt; font-weight: bold; }
-.wr-info { font-size: 11pt; }
-.wr-section { font-weight: bold; }
+td { border: 1px solid #000; padding: 2px 6px; font-size: 11pt; line-height: 18pt; }
+.wr-title { text-align: center; font-size: 18pt; font-weight: bold; line-height: 18pt; }
+.wr-info { font-size: 11pt; line-height: 18pt; }
+.wr-section { font-weight: bold; line-height: 18pt; }
 strong { font-weight: bold; }
 </style>
 </head>
@@ -1042,12 +1042,12 @@ ${content}
                   className={`w-full rounded border p-4 text-sm leading-6 overflow-auto ${isDark ? "bg-zinc-900 border-zinc-700 text-zinc-100" : "bg-white border-zinc-300 text-zinc-900"}`}
                   style={{ fontFamily: '"宋体", SimSun, serif' }}>
                   <style>{`
-                    p { margin: 0; padding: 0; }
+                    p { margin: 0; padding: 0; line-height: 18pt; }
                     table { border-collapse: collapse; }
-                    td { border: 1px solid #000; padding: 2px 6px; font-size: 11pt; }
-                    .wr-title { text-align: center; font-size: 18pt; font-weight: bold; }
-                    .wr-info { font-size: 11pt; }
-                    .wr-section { font-weight: bold; }
+                    td { border: 1px solid #000; padding: 2px 6px; font-size: 11pt; line-height: 18pt; }
+                    .wr-title { text-align: center; font-size: 18pt; font-weight: bold; line-height: 18pt; }
+                    .wr-info { font-size: 11pt; line-height: 18pt; }
+                    .wr-section { font-weight: bold; line-height: 18pt; }
                     strong { font-weight: bold; }
                   `}</style>
                   <div dangerouslySetInnerHTML={{ __html: renderWeeklyReportContent(weeklyReportDraft) }} />
