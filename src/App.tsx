@@ -240,6 +240,10 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
   const [isMuted, setIsMuted] = useState(false);
   const [newTodo, setNewTodo] = useState("");
   const [newMessage, setNewMessage] = useState("");
+  const [showCommandMenu, setShowCommandMenu] = useState(false);
+  const [commandMenuType, setCommandMenuType] = useState<"@" | "/" | null>(null);
+  const [selectedCommandIndex, setSelectedCommandIndex] = useState(0);
+  const [selectedPill, setSelectedPill] = useState<{ type: "ai" | "note" | "remind"; label: string } | null>(null);
   const [streamedMessage, setStreamedMessage] = useState("");
   const [streamedMessageId, setStreamedMessageId] = useState<Id<"pageMessages"> | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -350,12 +354,40 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
     }
     if (!newMessage.trim() || !pageId) return;
 
-    if (newMessage.trim().startsWith("@ai")) {
-      const prompt = newMessage.slice(3).trim() || "你好！有什么可以帮助你的吗？";
-      await sendMessage({ text: newMessage.trim(), sender: username, pageId });
+    const trimmed = newMessage.trim();
+
+    if (selectedPill?.type === "ai") {
+      const prompt = trimmed || "你好！有什么可以帮助你的吗？";
+      await sendMessage({ text: `@ai ${prompt}`, sender: username, pageId });
       const messageId = await askAIAction({ prompt, pageId });
       setStreamedMessageId(messageId);
       setStreamedMessage("");
+    } else if (selectedPill?.type === "note") {
+      const noteText = trimmed;
+      if (noteText) {
+        await sendMessage({ text: `/note ${noteText}`, sender: username, pageId });
+        await createNote({
+          pageId,
+          title: `${username} 的笔记`,
+          content: noteText,
+        });
+        await sendMessage({
+          text: `📝 已创建笔记: ${noteText.slice(0, 30)}${noteText.length > 30 ? "..." : ""}`,
+          sender: "系统",
+          pageId,
+        });
+      }
+    } else if (selectedPill?.type === "remind") {
+      const reminderText = trimmed;
+      if (reminderText) {
+        await sendMessage({ text: `/remind ${reminderText}`, sender: username, pageId });
+        await addTodo({ text: reminderText, pageId });
+        await sendMessage({
+          text: `✅ 已添加待办: ${reminderText.slice(0, 30)}${reminderText.length > 30 ? "..." : ""}`,
+          sender: "系统",
+          pageId,
+        });
+      }
     } else if (newMessage.toLowerCase().includes("remind me") && pageId) {
       const reminderText = newMessage.toLowerCase().replace("remind me", "").trim();
 
@@ -388,6 +420,129 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
     }
 
     setNewMessage("");
+    setShowCommandMenu(false);
+    setCommandMenuType(null);
+    setSelectedPill(null);
+  };
+
+  const handleMessageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setNewMessage(value);
+
+    if (selectedPill) return;
+
+    const lastAtIndex = value.lastIndexOf("@");
+    const lastSlashIndex = value.lastIndexOf("/");
+    const isAtTrigger = lastAtIndex !== -1 && (lastSlashIndex === -1 || lastAtIndex > lastSlashIndex);
+    const isSlashTrigger = lastSlashIndex !== -1 && (lastAtIndex === -1 || lastSlashIndex > lastAtIndex) && lastSlashIndex === 0;
+
+    if (isAtTrigger) {
+      setCommandMenuType("@");
+      setShowCommandMenu(true);
+      setSelectedCommandIndex(0);
+    } else if (isSlashTrigger) {
+      setCommandMenuType("/");
+      setShowCommandMenu(true);
+      setSelectedCommandIndex(0);
+    } else {
+      setShowCommandMenu(false);
+      setCommandMenuType(null);
+    }
+  };
+
+  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Backspace" && !newMessage && selectedPill) {
+      e.preventDefault();
+      removePill();
+      return;
+    }
+
+    if (showCommandMenu && commandOptions.length > 0) {
+      const filter = getCommandFilter();
+      if (e.key === " " && filter) {
+        const exactMatch = commandOptions.find(
+          (opt) => opt.label.toLowerCase().replace("/", "").replace("@", "").startsWith(filter.toLowerCase()),
+        );
+        if (exactMatch) {
+          e.preventDefault();
+          selectCommand(exactMatch);
+          return;
+        }
+      }
+    }
+
+    handleCommandKeyDown(e);
+  };
+
+  const getCommandFilter = () => {
+    if (commandMenuType === "@") {
+      const lastAt = newMessage.lastIndexOf("@");
+      return newMessage.slice(lastAt + 1).toLowerCase();
+    }
+    if (commandMenuType === "/") {
+      const lastSlash = newMessage.lastIndexOf("/");
+      return newMessage.slice(lastSlash + 1).toLowerCase();
+    }
+    return "";
+  };
+
+  const commandOptions = commandMenuType === "@"
+    ? [{ type: "ai" as const, value: "@ai", label: "@ai", description: "询问 AI 助手" }]
+    : commandMenuType === "/"
+      ? [
+          { type: "note" as const, value: "/note", label: "/note", description: "创建笔记" },
+          { type: "remind" as const, value: "/remind", label: "/remind", description: "创建待办" },
+        ].filter((opt) => {
+          const filter = getCommandFilter();
+          if (!filter) return true;
+          const labelKey = opt.label.replace("/", "");
+          return labelKey.toLowerCase().startsWith(filter.toLowerCase());
+        })
+      : [];
+
+  const selectCommand = (option: typeof commandOptions[0]) => {
+    setSelectedPill({ type: option.type, label: option.label });
+    const lastAtIndex = newMessage.lastIndexOf("@");
+    const lastSlashIndex = newMessage.lastIndexOf("/");
+    const lastIndex = Math.max(lastAtIndex, lastSlashIndex);
+    setNewMessage(newMessage.substring(0, lastIndex));
+    setShowCommandMenu(false);
+    setCommandMenuType(null);
+    setSelectedCommandIndex(0);
+    const input = document.getElementById("message-input");
+    input?.focus();
+  };
+
+  const handleCommandKeyDown = (e: React.KeyboardEvent) => {
+    if (!showCommandMenu || commandOptions.length === 0) return;
+
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setSelectedCommandIndex((prev) => (prev + 1) % commandOptions.length);
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setSelectedCommandIndex((prev) => (prev - 1 + commandOptions.length) % commandOptions.length);
+    } else if (e.key === "Tab") {
+      e.preventDefault();
+      selectCommand(commandOptions[selectedCommandIndex]);
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      selectCommand(commandOptions[selectedCommandIndex]);
+    } else if (e.key === "Escape") {
+      setShowCommandMenu(false);
+      setCommandMenuType(null);
+    }
+  };
+
+  const removePill = () => {
+    if (selectedPill?.type === "ai") {
+      setNewMessage("@ai ");
+    } else if (selectedPill?.type === "note") {
+      setNewMessage("/note ");
+    } else if (selectedPill?.type === "remind") {
+      setNewMessage("/remind ");
+    }
+    setSelectedPill(null);
   };
 
   const sendEmoji = () => {
@@ -455,7 +610,7 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
         });
         await sendPageMessage({
           pageId,
-          text: '开始聊天，输入 @ai 询问AI，输入 remind me 设置提醒，或输入 note: 创建笔记。',
+          text: '开始聊天，输入 @ 询问AI，输入 / 创建笔记或待办。',
           sender: "系统",
         });
         window.location.href = `/${newPageSlug.trim()}`;
@@ -1090,7 +1245,7 @@ ${content}
                 </div>
                 <form onSubmit={handleSubmitMessage}>
                   <div
-                    className={`${inputBgClasses} rounded-lg p-4 flex items-center gap-4 shadow-sm`}>
+                    className={`relative ${inputBgClasses} rounded-lg p-4 flex items-center gap-4 shadow-sm`}>
                     {isEditingUsername ? (
                       <div className="flex items-center gap-2">
                         <input
@@ -1141,31 +1296,51 @@ ${content}
                         {username}
                       </button>
                     )}
+{selectedPill && (
+                      <div className={`flex items-center gap-1 px-2 py-1 rounded ${isDark ? "bg-blue-900 text-blue-200" : "bg-blue-100 text-blue-800"}`}>
+                        <span className="text-sm font-medium">{selectedPill.label}</span>
+                        <button
+                          type="button"
+                          onClick={removePill}
+                          className="hover:text-red-500 ml-1">
+                          ×
+                        </button>
+                      </div>
+                    )}
                     <input
                       type="text"
                       id="message-input"
                       name="message"
                       value={newMessage}
-                      onChange={(e) => setNewMessage(e.target.value)}
+                      onChange={handleMessageChange}
+                      onKeyDown={handleInputKeyDown}
                       onFocus={() => {
                         if (!hasShownWarning) {
                           setShowWarning(true);
                         }
                       }}
-                      placeholder="发送消息，或输入 @ai 问AI、remind me 设置提醒、note: 创建笔记..."
+                      placeholder={selectedPill ? "输入内容..." : "输入 @ 询问AI，/ 创建笔记或待办..."}
                       className={`bg-transparent flex-1 outline-none ${textClasses} placeholder-zinc-500`}
                     />
+                    {showCommandMenu && (
+                      <div className={`absolute bottom-full mb-1 left-0 ${isDark ? "bg-zinc-800" : "bg-white"} border border-zinc-300 rounded-lg shadow-lg py-1 min-w-48 z-50`}>
+                        {commandOptions.map((option, idx) => (
+                          <button
+                            key={idx}
+                            type="button"
+                            onClick={() => selectCommand(option)}
+                            className={`w-full text-left px-3 py-2 text-sm ${idx === selectedCommandIndex ? (isDark ? "bg-blue-600 text-white" : "bg-blue-500 text-white") : (isDark ? "hover:bg-zinc-700 text-zinc-200" : "hover:bg-gray-100 text-zinc-800")}`}>
+                            <span className="font-medium">{option.label}</span>
+                            <span className={`ml-2 ${idx === selectedCommandIndex ? "text-blue-100" : (isDark ? "text-zinc-400" : "text-zinc-500")}`}>{option.description}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
                     <button
                       type="button"
                       onClick={sendEmoji}
                       className={`${isDark ? "text-zinc-400" : "text-zinc-500"} hover:text-yellow-500 transition-colors`}>
                       <Smile className="w-4 h-4" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setNewMessage("@ai")}
-                      className={`${isDark ? "text-zinc-400" : "text-zinc-500"} hover:text-blue-500 transition-colors`}>
-                      问AI
                     </button>
                     <button
                       type="submit"
@@ -1463,7 +1638,7 @@ ${content}
       <footer className="relative w-full py-6 px-4 mt-5">
         <div className="max-w-7xl mx-auto text-center">
           <p className={`${iconClasses} text-sm mb-2`}>
-            所有聊天和提醒每天通过定时任务自动清理。
+            所有聊天和待办每天通过定时任务自动清理。
           </p>
         </div>
       </footer>
@@ -1493,9 +1668,8 @@ ${content}
                 <h3 className={`text-lg font-medium ${textClasses} mb-3`}>实时聊天</h3>
                 <ul className={`list-disc pl-5 space-y-2 ${textClasses}`}>
                   <li>即时发送和接收聊天消息</li>
-                  <li>使用 "@ai" 命令获取AI回复</li>
-                  <li>在聊天中输入 "remind me" 创建提醒</li>
-                  <li>在聊天中输入 "note:" 创建笔记</li>
+                  <li>输入 "@" 获取AI回复</li>
+                  <li>输入 "/" 创建笔记或待办</li>
                   <li>消息搜索功能</li>
                   <li>点赞消息并查看点赞数</li>
                   <li>发送表情反应</li>
@@ -1518,11 +1692,11 @@ ${content}
               <div>
                 <h3 className={`text-lg font-medium ${textClasses} mb-3`}>待办事项</h3>
                 <ul className={`list-disc pl-5 space-y-2 ${textClasses}`}>
-                  <li>创建和管理公开提醒</li>
+                  <li>创建和管理公开待办</li>
                   <li>切换完成状态</li>
-                  <li>赞成和反对提醒</li>
+                  <li>赞成和反对待办</li>
                   <li>所有连接客户端实时更新</li>
-                  <li>悬停控制删除提醒</li>
+                  <li>悬停控制删除待办</li>
                 </ul>
               </div>
             </div>
@@ -1568,7 +1742,7 @@ function App() {
           if (pageId) {
             sendPageMessage({
               pageId,
-text: '开始聊天，输入 @ai 询问AI，输入 remind me 设置提醒，或输入 note: 创建笔记。',
+              text: '开始聊天，输入 @ 询问AI，输入 / 创建笔记或待办。',
               sender: "系统",
             });
           }

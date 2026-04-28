@@ -39,7 +39,7 @@ const AdminPage = () => {
       <footer className="relative w-full py-6 px-4">
         <div className="max-w-7xl mx-auto text-center">
           <p className="text-sm mb-2">
-            所有聊天和提醒每天通过定时任务自动清理。
+            所有聊天和待办每天通过定时任务自动清理。
           </p>
         </div>
       </footer>

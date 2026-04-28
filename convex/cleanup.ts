@@ -37,7 +37,7 @@ export const clearAllData = internalMutation({
       await ctx.db.insert("pageMessages", {
         pageId: page._id,
         sender: "系统",
-        text: '开始聊天，输入 @ai 询问AI，输入 remind me 设置提醒，或输入 note: 创建笔记。',
+        text: '开始聊天，输入 @ 询问AI，输入 / 创建笔记或待办。',
         timestamp: Date.now(),
       });
     }

@@ -104,15 +104,15 @@ const AdminDashboard = () => {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-2">提醒</h2>
+          <h2 className="text-xl font-semibold mb-2">待办</h2>
           <button
             className="mb-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
             onClick={async () => {
-              if (window.confirm("确定要删除所有提醒吗?")) {
+              if (window.confirm("确定要删除所有待办吗?")) {
                 await deleteAllTodos();
               }
             }}>
-            删除所有提醒
+            删除所有待办
           </button>
           <div className="space-y-2">
             {todos.map((todo) => (
@@ -126,7 +126,7 @@ const AdminDashboard = () => {
                 <button
                   className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600"
                   onClick={async () => {
-                    if (window.confirm("删除此提醒?")) {
+                    if (window.confirm("删除此待办?")) {
                       await deleteTodo({ id: todo._id });
                     }
                   }}>
@@ -171,7 +171,7 @@ const Footer = () => (
   <footer className="relative w-full py-6 px-4 mt-[40px] bg-white border-t">
     <div className="max-w-7xl mx-auto text-center">
       <p className="text-sm mb-2 text-gray-500">
-        所有聊天和提醒每天自动清理。{" "}
+        所有聊天和待办每天自动清理。{" "}
         <a
           href="https://www.cronvex.com"
           target="_blank"

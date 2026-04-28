@@ -103,9 +103,9 @@ const AboutPage = () => {
                 <h3 className={`text-lg font-medium ${iconClasses} mb-3`}>实时聊天</h3>
                 <ul className={`list-disc pl-5 space-y-2 ${iconClasses}`}>
                   <li>即时发送和接收聊天消息</li>
-                  <li>使用 "@ai" 命令获取AI回复</li>
+                  <li>输入 "@" 获取AI回复</li>
                   <li>来自OpenAI的实时消息流</li>
-                  <li>在聊天中输入 "remind me" 创建提醒</li>
+                  <li>输入 "/" 创建笔记或待办</li>
                   <li>使用向量搜索功能搜索消息</li>
                   <li>点赞消息并查看点赞数</li>
                   <li>发送表情反应</li>
@@ -115,11 +115,11 @@ const AboutPage = () => {
               <div>
                 <h3 className={`text-lg font-medium ${iconClasses} mb-3`}>待办事项</h3>
                 <ul className={`list-disc pl-5 space-y-2 ${iconClasses}`}>
-                  <li>创建和管理公开提醒</li>
+                  <li>创建和管理公开待办</li>
                   <li>切换完成状态</li>
-                  <li>赞成和反对提醒</li>
+                  <li>赞成和反对待办</li>
                   <li>所有连接客户端实时更新</li>
-                  <li>悬停控制删除提醒</li>
+                  <li>悬停控制删除待办</li>
                 </ul>
               </div>
             </div>
@@ -182,7 +182,7 @@ const AboutPage = () => {
       <footer className="relative w-full py-6 px-4 mt-1">
         <div className="max-w-7xl mx-auto text-center">
           <p className={`${iconClasses} text-sm mb-2`}>
-            所有聊天和提醒每天通过定时任务自动清理。
+            所有聊天和待办每天通过定时任务自动清理。
           </p>
         </div>
       </footer>
