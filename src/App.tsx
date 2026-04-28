@@ -633,17 +633,24 @@ ${contentLines.map((line) => {
   const renderWeeklyReportHtml = (text: string) => {
     const content = renderWeeklyReportContent(text);
     return `<!DOCTYPE html>
-<html>
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
 <head>
 <meta charset="utf-8">
+<!--[if gte mso 9]>
+<xml>
+<w:WordDocument>
+<w:View>Print</w:View>
+</w:WordDocument>
+</xml>
+<![endif]-->
 <style>
-body { font-family: "宋体", SimSun, serif; font-size: 12pt; mso-line-height-rule: exactly; }
-p { margin: 0; padding: 0; line-height: 1.2 !important; }
-.wr-title { text-align: center; font-size: 18pt; font-weight: bold; margin: 8px 0 4px 0; line-height: 1.2; }
-.wr-info { margin: 2px 0; font-size: 11pt; line-height: 1.2; }
-.wr-table { width: 100%; border-collapse: collapse; margin-top: 4px; }
-.wr-table td { border: 1px solid #000; padding: 2px 6px; font-size: 11pt; line-height: 1.2; }
-.wr-section { font-weight: bold; margin: 6px 0 3px 0; line-height: 1.2; }
+body { font-family: "宋体", SimSun, serif; font-size: 12pt; }
+p { margin: 0; padding: 0; }
+table { border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+td { border: 1px solid #000; padding: 2px 6px; font-size: 11pt; }
+.wr-title { text-align: center; font-size: 18pt; font-weight: bold; }
+.wr-info { font-size: 11pt; }
+.wr-section { font-weight: bold; }
 strong { font-weight: bold; }
 </style>
 </head>
@@ -1035,12 +1042,12 @@ ${content}
                   className={`w-full rounded border p-4 text-sm leading-6 overflow-auto ${isDark ? "bg-zinc-900 border-zinc-700 text-zinc-100" : "bg-white border-zinc-300 text-zinc-900"}`}
                   style={{ fontFamily: '"宋体", SimSun, serif' }}>
                   <style>{`
-                    p { margin: 0; padding: 0; line-height: 1.2 !important; }
-                    .wr-title { text-align: center; font-size: 18pt; font-weight: bold; margin: 8px 0 4px 0; }
-                    .wr-info { margin: 2px 0; font-size: 11pt; }
-                    .wr-table { width: 100%; border-collapse: collapse; margin-top: 4px; }
-                    .wr-table td { border: 1px solid #000; padding: 2px 6px; font-size: 11pt; }
-                    .wr-section { font-weight: bold; margin: 6px 0 3px 0; }
+                    p { margin: 0; padding: 0; }
+                    table { border-collapse: collapse; }
+                    td { border: 1px solid #000; padding: 2px 6px; font-size: 11pt; }
+                    .wr-title { text-align: center; font-size: 18pt; font-weight: bold; }
+                    .wr-info { font-size: 11pt; }
+                    .wr-section { font-weight: bold; }
                     strong { font-weight: bold; }
                   `}</style>
                   <div dangerouslySetInnerHTML={{ __html: renderWeeklyReportContent(weeklyReportDraft) }} />
