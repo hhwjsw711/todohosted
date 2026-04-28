@@ -528,9 +528,8 @@ export const generateWeeklyReport = action({
     for (const [typeLabel, typeTasks] of grouped.entries()) {
       const doneCount = typeTasks.filter((t) => t.status === "done").length;
       const pendingCount = typeTasks.length - doneCount;
-      featureSections.push(
-        `${featureIndex}.    ${typeLabel}\n本周新增事项${typeTasks.length}条，已完成${doneCount}条，未完成${pendingCount}条。`
-      );
+      const sectionText = `${featureIndex}.    ${typeLabel}\n本周新增事项${typeTasks.length}条，已完成${doneCount}条，未完成${pendingCount}条。`;
+      featureSections.push(sectionText.replace(typeLabel, `**${typeLabel}**`));
 
       const platformGroups = new Map<string, Array<any>>();
       for (const task of typeTasks) {
@@ -542,7 +541,7 @@ export const generateWeeklyReport = action({
 
       let platformIndex = 1;
       for (const [platformLabel, platformTasks] of platformGroups.entries()) {
-        featureSections.push(`(${platformIndex})    ${platformLabel}`);
+        featureSections.push(`(${platformIndex})    **${platformLabel}**`);
         let itemIndex = 1;
         for (const task of platformTasks) {
           const statusLabel =
@@ -559,18 +558,18 @@ export const generateWeeklyReport = action({
           const dateValue = formatDateCN(task.dueDate);
           const docLinks = task.documentLinks
             ? task.documentLinks
-                .map((doc: any) => `关联${DOC_TYPE_LABELS[doc.docType] || doc.docType}：${doc.docNumber}`)
+                .map((doc: any) => `**关联${DOC_TYPE_LABELS[doc.docType] || doc.docType}：**${doc.docNumber}`)
                 .join("\n")
             : "";
           const notesContent = task.notes && task.notes.length > 0
             ? task.notes.join("；")
             : "";
           featureSections.push(
-            `${itemIndex})    ${task.title}\n` +
-              `详细描述：${task.description ?? "待补充"}\n` +
-              `提出人：${task.proposer ?? "待补充"}      业务对接人：${task.clientContact ?? "待补充"}\n` +
-              `提出时间：${formatDateCN(task.proposedAt)}      ${dateLabel}：${dateValue}${docLinks ? `\n${docLinks}` : ""}` +
-              (notesContent ? `\n情况说明：${notesContent}` : "")
+            `${itemIndex})    **${task.title}**\n` +
+              `**详细描述：**${task.description ?? "待补充"}\n` +
+              `**提出人：**${task.proposer ?? "待补充"}      **业务对接人：**${task.clientContact ?? "待补充"}\n` +
+              `**提出时间：**${formatDateCN(task.proposedAt)}      **${dateLabel}:**${dateValue}${docLinks ? `\n${docLinks}` : ""}` +
+              (notesContent ? `\n**情况说明：**${notesContent}` : "")
           );
           itemIndex += 1;
         }
@@ -596,7 +595,7 @@ export const generateWeeklyReport = action({
         ? unfinishedTasks.slice(0, 10).map((task, idx) => {
             const platformLabel = PLATFORM_LABELS[task.subPlatform] ?? "未分类平台";
             const statusLabel = task.status === "in_progress" ? "进行中" : "待处理";
-            return `${idx + 1}.    [${platformLabel}] ${task.title}（${statusLabel}）`;
+            return `${idx + 1}.    [${platformLabel}] **${task.title}**（${statusLabel}）`;
           }).join("\n") + "\n"
         : "暂无未完成事项，按计划开展例行巡检与优化。\n") +
       `三、待协调事项\n` +

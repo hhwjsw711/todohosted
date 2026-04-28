@@ -604,6 +604,8 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
   const renderWeeklyReportContent = (text: string) => {
     const { title, projectName, code, unitName, dateRange, teamMembers, contentLines } = parseWeeklyReport(text);
 
+    const processBold = (str: string) => str.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+
     return `<p class="wr-title">${title}</p>
 <p class="wr-info">项目名称：${projectName}</p>
 <p class="wr-info">编&nbsp;&nbsp;号：${code}</p>
@@ -619,9 +621,9 @@ export const MainApp: React.FC<MainAppProps> = ({ pageId }) => {
     <td colspan="2">
 ${contentLines.map((line) => {
   if (line.startsWith("一、本周工作内容：") || line.startsWith("二、下周工作计划：") || line.startsWith("三、待协调事项")) {
-    return `<p class="wr-section">${line}</p>`;
+    return `<p class="wr-section">${processBold(line)}</p>`;
   }
-  return `<p>${line || "&nbsp;"}</p>`;
+  return `<p>${processBold(line) || "&nbsp;"}</p>`;
 }).join("\n")}
     </td>
   </tr>
@@ -635,13 +637,14 @@ ${contentLines.map((line) => {
 <head>
 <meta charset="utf-8">
 <style>
-body { font-family: "宋体", SimSun, serif; font-size: 12pt; }
-.wr-title { text-align: center; font-size: 18pt; font-weight: bold; margin: 15px 0 10px 0; }
-.wr-info { margin: 6px 0; font-size: 11pt; }
-.wr-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-.wr-table td { border: 1px solid #000; padding: 6px 10px; font-size: 11pt; }
-.wr-content { line-height: 1.6; }
-.wr-section { font-weight: bold; margin: 12px 0 6px 0; }
+body { font-family: "宋体", SimSun, serif; font-size: 12pt; mso-line-height-rule: exactly; }
+p { margin: 0; padding: 0; line-height: 1.2 !important; }
+.wr-title { text-align: center; font-size: 18pt; font-weight: bold; margin: 8px 0 4px 0; line-height: 1.2; }
+.wr-info { margin: 2px 0; font-size: 11pt; line-height: 1.2; }
+.wr-table { width: 100%; border-collapse: collapse; margin-top: 4px; }
+.wr-table td { border: 1px solid #000; padding: 2px 6px; font-size: 11pt; line-height: 1.2; }
+.wr-section { font-weight: bold; margin: 6px 0 3px 0; line-height: 1.2; }
+strong { font-weight: bold; }
 </style>
 </head>
 <body>
@@ -1032,12 +1035,13 @@ ${content}
                   className={`w-full rounded border p-4 text-sm leading-6 overflow-auto ${isDark ? "bg-zinc-900 border-zinc-700 text-zinc-100" : "bg-white border-zinc-300 text-zinc-900"}`}
                   style={{ fontFamily: '"宋体", SimSun, serif' }}>
                   <style>{`
-                    .wr-title { text-align: center; font-size: 18pt; font-weight: bold; margin: 15px 0 10px 0; }
-                    .wr-info { margin: 6px 0; font-size: 11pt; }
-                    .wr-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-                    .wr-table td { border: 1px solid #000; padding: 6px 10px; font-size: 11pt; }
-                    .wr-content { line-height: 1.6; }
-                    .wr-section { font-weight: bold; margin: 12px 0 6px 0; }
+                    p { margin: 0; padding: 0; line-height: 1.2 !important; }
+                    .wr-title { text-align: center; font-size: 18pt; font-weight: bold; margin: 8px 0 4px 0; }
+                    .wr-info { margin: 2px 0; font-size: 11pt; }
+                    .wr-table { width: 100%; border-collapse: collapse; margin-top: 4px; }
+                    .wr-table td { border: 1px solid #000; padding: 2px 6px; font-size: 11pt; }
+                    .wr-section { font-weight: bold; margin: 6px 0 3px 0; }
+                    strong { font-weight: bold; }
                   `}</style>
                   <div dangerouslySetInnerHTML={{ __html: renderWeeklyReportContent(weeklyReportDraft) }} />
                 </div>
