@@ -9,20 +9,23 @@ const TASK_API_BASE_URL =
 
 const REPORT_TYPE_LABELS: Record<string, string> = {
   feature_optimization: "功能优化",
-  bug_handling: "BUG处置",
+  bug_handling: "Bug修复",
   incident_handling: "故障处置",
   server_config: "服务器资源配置",
-  permission_config: "权限配置管理",
+  permission_config: "配置管理",
   security_risk: "安全风险处理",
   security_config: "安全配置管理",
-  third_party_integration: "和其他平台对接",
-  consultation: "咨询协助",
+  third_party_integration: "与其他平台对接",
+  consultation: "技术咨询",
   data_maintenance: "数据维护与统计",
   data_migration: "数据迁移",
   emergency_drill: "应急演练",
   documentation: "文档管理",
   data_security: "数据安全",
   password_service_guarantee: "密码服务接口保障",
+  security_compliance: "安全合规性保障",
+  consultation_assist: "咨询协助",
+  routine_inspection: "例行巡检",
   other: "其他",
 };
 
@@ -516,7 +519,7 @@ export const generateWeeklyReport = action({
 
     const grouped = new Map<string, Array<any>>();
     for (const task of weeklyTasks) {
-      const label = REPORT_TYPE_LABELS[task.taskType] ?? "其他事项";
+      const label = REPORT_TYPE_LABELS[task.taskType] ?? "其他";
       const list = grouped.get(label) ?? [];
       list.push(task);
       grouped.set(label, list);
@@ -525,7 +528,37 @@ export const generateWeeklyReport = action({
     const featureSections: string[] = [];
     let featureIndex = 1;
 
-    for (const [typeLabel, typeTasks] of grouped.entries()) {
+    const taskTypes = [
+      { key: "feature_optimization", label: "功能优化" },
+      { key: "bug_handling", label: "Bug修复" },
+      { key: "incident_handling", label: "故障处置" },
+      { key: "server_config", label: "服务器资源配置" },
+      { key: "permission_config", label: "配置管理" },
+      { key: "security_risk", label: "安全风险处理" },
+      { key: "security_config", label: "安全配置管理" },
+      { key: "third_party_integration", label: "与其他平台对接" },
+      { key: "consultation", label: "技术咨询" },
+      { key: "data_maintenance", label: "数据维护与统计" },
+      { key: "data_migration", label: "数据迁移" },
+      { key: "emergency_drill", label: "应急演练" },
+      { key: "documentation", label: "文档管理" },
+      { key: "data_security", label: "数据安全" },
+      { key: "password_service_guarantee", label: "密码服务接口保障" },
+      { key: "security_compliance", label: "安全合规性保障" },
+      { key: "consultation_assist", label: "咨询协助" },
+      { key: "routine_inspection", label: "例行巡检" },
+      { key: "other", label: "其他" },
+    ];
+
+    for (const { label: typeLabel } of taskTypes) {
+      const typeTasks = grouped.get(typeLabel) ?? [];
+
+      if (typeTasks.length === 0) {
+        featureSections.push(`${featureIndex}.    **${typeLabel}**\n无`);
+        featureIndex += 1;
+        continue;
+      }
+
       const doneCount = typeTasks.filter((t) => t.status === "done").length;
       const pendingCount = typeTasks.length - doneCount;
       const sectionText = `${featureIndex}.    ${typeLabel}\n本周新增事项${typeTasks.length}条，已完成${doneCount}条，未完成${pendingCount}条。`;
@@ -669,7 +702,7 @@ export const exportAllTasksToExcel = action({
       songyang: "松阳县",
       yunhe: "云和县",
       qingtian_county: "庆元县",
-      jinglong: "景宁县",
+      jingning: "景宁县",
       longquan: "龙泉市",
     };
 
