@@ -689,6 +689,8 @@ export const exportAllTasksToExcel = action({
         "关联权限申请表",
         "关联云资源申请表",
         "情况说明",
+        "备注",
+        "乙方责任人",
       ],
     ];
 
@@ -740,6 +742,8 @@ export const exportAllTasksToExcel = action({
         permissionLinks,
         cloudLinks,
         notesContent,
+        task.tags?.join(";") ?? "",
+        task.assignees?.join(";") ?? "",
       ]);
     }
 
